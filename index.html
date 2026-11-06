@@ -68,17 +68,17 @@
         .menu-subtitle {
             font-size: clamp(14px, 3.5vw, 18px);
             color: #86efac;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             font-weight: 600;
             text-align: center;
         }
 
         .menu-card {
-            background: rgba(22, 33, 20, 0.9);
+            background: rgba(22, 33, 20, 0.92);
             border: 3px solid #854d0e;
             padding: 24px;
             border-radius: 20px;
-            max-width: 420px;
+            max-width: 400px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -88,7 +88,7 @@
 
         .menu-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 13px 16px;
             border-radius: 12px;
             border: 2px solid #ca8a04;
             background: #0f172a;
@@ -97,7 +97,6 @@
             font-weight: bold;
             outline: none;
             text-align: center;
-            text-transform: uppercase;
         }
 
         .menu-input:focus {
@@ -109,9 +108,9 @@
             background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
             color: #fff;
             border: 2px solid #86efac;
-            padding: 13px;
+            padding: 15px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 900;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -125,11 +124,6 @@
         .menu-btn:hover {
             transform: scale(1.02);
             background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-        }
-
-        .menu-btn.alt {
-            background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
-            border-color: #fef08a;
         }
 
         /* ================= ÜST HUD (GÖSTERGE BARI) ================= */
@@ -166,7 +160,6 @@
             align-items: center;
             gap: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            cursor: pointer;
         }
 
         .gold-val {
@@ -175,19 +168,26 @@
             text-shadow: 0 1px 3px #000;
         }
 
-        .room-code-tag {
-            color: #67e8f9;
-            background: rgba(0,0,0,0.3);
-            padding: 2px 6px;
-            border-radius: 6px;
-            border: 1px dashed #38bdf8;
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 1.5s infinite;
         }
 
-        /* Açılıp Kapanabilir Nasıl Oynanır Kartı */
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        /* Açılır Kapanır Nasıl Oynanır Rehberi */
         #guide-modal {
             position: absolute;
-            top: 60px;
-            left: 10px;
+            top: 55px;
+            right: 10px;
             background: rgba(15, 23, 42, 0.96);
             color: #e2e8f0;
             padding: 14px 18px;
@@ -230,7 +230,6 @@
             z-index: 90;
         }
 
-        /* Sanal Joystick */
         #joystick-zone {
             position: absolute;
             bottom: 110px;
@@ -258,7 +257,6 @@
             transform: translate(0px, 0px);
         }
 
-        /* Sağ Taraf Dokunmatik Aksiyon Butonları */
         #action-buttons {
             position: absolute;
             bottom: 110px;
@@ -368,7 +366,6 @@
             font-weight: bold;
         }
 
-        /* Savaş Bildirim Bandı */
         #war-banner {
             position: absolute;
             top: 55px;
@@ -394,21 +391,16 @@
 </head>
 <body>
 
-<!-- ANA MENÜ / ODA SEÇİMİ -->
+<!-- ANA MENÜ / ODA SEÇİMİ (TEK ORTAK ODA) -->
 <div id="main-menu">
     <div class="menu-title">👑 KABUK KRALLIĞI</div>
-    <div class="menu-subtitle">Madencilerini Yönet, Surunu Kur, Krallığını Koru! 🐢⚔️</div>
+    <div class="menu-subtitle">Tüm Oyuncular Tek Ortak Dünyada Buluşuyor! 🐢⚔️</div>
 
     <div class="menu-card">
-        <input type="text" id="inp-nickname" class="menu-input" placeholder="KAPLUMBAĞA ADINIZ" maxlength="15" value="Lider">
-        <input type="text" id="inp-room" class="menu-input" placeholder="ODA KODU (ÖRN: KRAL-1)" maxlength="12" value="GENEL">
+        <input type="text" id="inp-nickname" class="menu-input" placeholder="KAPLUMBAĞA ADINIZ" maxlength="15" value="Kral Kaplumbağa">
         
         <button id="btn-play-now" class="menu-btn">
-            <span>🎮 OYNA & ODAYA GİR</span>
-        </button>
-
-        <button id="btn-random-room" class="menu-btn alt">
-            <span>🎲 RASTGELE YENİ ODA KUR</span>
+            <span>⚔️ ORTAK KRALLIĞA GİR (OYNA)</span>
         </button>
     </div>
 </div>
@@ -424,9 +416,9 @@
                 <span>💰</span>
                 <span id="ui-gold" class="gold-val">50</span>
             </div>
-            <div id="btn-room-badge" class="hud-badge" title="Tıkla ve Oda Kodunu Değiştir">
-                <span>🔑 Oda:</span>
-                <span id="ui-room" class="room-code-tag">GENEL</span>
+            <div class="hud-badge">
+                <span class="online-dot"></span>
+                <span id="ui-online-count" style="color:#86efac;">1 Kaplumbağa Çevrim İçi</span>
             </div>
         </div>
 
@@ -435,8 +427,8 @@
                 <span>🛡️</span>
                 <span id="ui-army" style="color: #67e8f9;">0 Asker</span>
             </div>
-            <div id="btn-toggle-guide" class="hud-badge" style="border-color: #facc15;">
-                <span>ℹ️ Nasıl Oynanır?</span>
+            <div id="btn-toggle-guide" class="hud-badge" style="border-color: #facc15; cursor:pointer;">
+                <span>ℹ️ Rehber</span>
             </div>
         </div>
     </div>
@@ -448,12 +440,12 @@
     <div id="guide-modal">
         <button id="btn-close-guide" class="btn-close-guide">✕</button>
         <b>💡 Nasıl Oynanır?</b><br>
-        1. <b>Sen (Lider):</b> Hareket et (WASD veya Joystick). Madene yaklaşıp <b>[⛏️ KAZ]</b> butonuna basarak bizzat maden çıkarabilirsin!<br>
-        2. <b>Madenciler:</b> Her madencinin kendine ait maden kayası vardır, depoya maden taşır.<br>
+        1. <b>Herkes Aynı Dünyada:</b> Linke giren herkes bu haritada buluşur!<br>
+        2. <b>Sen (Lider):</b> Madene yaklaşıp <b>[⛏️ KAZ]</b> butonuna basarak bizzat maden çıkarabilirsin.<br>
         3. <b>Taşıyıcı Bot (150 Altın):</b> Depodan alıp Shop'a senin yerine otomatik taşır ve satar!<br>
         4. <b>Sur (200 Altın):</b> Sadece sen ve askerlerin geçebilir. Düşmanlar geçemez!<br>
         5. <b>Topçu (Osmanlı Topu):</b> Canı 13. Sadece sur yıkabilir! Topçu dışında sur yıkılamaz.<br>
-        6. <b>Yağmacılar:</b> Her 5 dakikada ormandan sinsice çıkarlar, dikkat et!
+        6. <b>Oyuncu Pusulası:</b> Uzaktaki diğer oyuncuların yönünü ekranın kenarındaki oklarda görebilirsin!
     </div>
 
     <!-- MOBİL & TABLET DOKUNMATİK KONTROLLER -->
@@ -562,7 +554,7 @@
 
 <script>
 /* ==========================================================================
-   GENİŞ HARİTA & OYUN DÜNYASI SABİTLERİ (2400 x 1800 Piksel)
+   GENİŞ HARİTA (2400 x 1800 Piksel)
    ========================================================================== */
 const WORLD_W = 2400;
 const WORLD_H = 1800;
@@ -577,10 +569,9 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// Kamera (Karakteri Merkezde Takip Eder)
 const camera = { x: 0, y: 0 };
 
-// Ses Efektleri
+// Ses Sistemi
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 function playSound(type) {
@@ -605,6 +596,7 @@ function playSound(type) {
             osc.frequency.setValueAtTime(180, now);
             osc.frequency.exponentialRampToValueAtTime(60, now + 0.12);
             gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
             osc.start(now);
             osc.stop(now + 0.12);
         } else if (type === 'cannon') {
@@ -612,6 +604,7 @@ function playSound(type) {
             osc.frequency.setValueAtTime(110, now);
             osc.frequency.exponentialRampToValueAtTime(30, now + 0.35);
             gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
             osc.start(now);
             osc.stop(now + 0.35);
         }
@@ -622,10 +615,8 @@ function playSound(type) {
    OYUNCU, BİNALAR VE EKONOMİ
    ========================================================================== */
 let money = 50;
-let roomCode = "GENEL";
-let myPlayerName = "Lider";
+let myPlayerName = "Kral Kaplumbağa";
 
-// Maden ve Kazma Kademeleri
 const MINE_TIERS = [
     { name: "Kömür", tier: 1, color: "#1e293b", value: 6, upgradeCost: 90 },
     { name: "Demir", tier: 2, color: "#94a3b8", value: 16, upgradeCost: 180 },
@@ -644,20 +635,18 @@ const PICK_TIERS = [
 ];
 let currentPickTierIndex = 0;
 
-// Binalar ve Araziler
-const baseCamp = { x: 800, y: 900 };
+// Binalar
 const zoneStorage = { x: 800, y: 880, w: 100, h: 80 };
-const zoneShop = { x: 1250, y: 880, w: 110, h: 85 };     // Shop biraz daha uzakta
+const zoneShop = { x: 1250, y: 880, w: 110, h: 85 };
 const zoneEnemyCamp = { x: 1950, y: 900, w: 160, h: 160 };
 
 let storageOreCount = 0;
 let playerCarriedOre = 0;
 const PLAYER_MAX_CARRY = 15;
 
-// Ana Karakter (Lider)
 const player = {
-    x: 800,
-    y: 980,
+    x: 800 + Math.random() * 80 - 40,
+    y: 950 + Math.random() * 80 - 40,
     speed: 4.2,
     moving: false,
     animTick: 0,
@@ -665,7 +654,7 @@ const player = {
     hp: 30
 };
 
-// Maden Kayaları (Her Madenciye Ayrı Kömür Damarı!)
+// Maden Kayaları
 let mineNodes = [];
 function addMineNode(id) {
     const angle = (id * 1.1) % (Math.PI * 2);
@@ -678,113 +667,69 @@ function addMineNode(id) {
         h: 50
     });
 }
-// Başlangıçtaki 3 maden kayası
 for (let i = 0; i < 3; i++) addMineNode(i + 1);
 
-// Surlar (Duvarlar)
-let walls = []; // { id, x, y, w, h, owner, hp: 100 }
-
-// Birimler
+let walls = [];
 let workers = [];
-let carriers = []; // Taşıyıcı Botlar
-let soldiers = []; // Oyuncunun Ordusu (Topçu dahil)
+let carriers = [];
+let soldiers = [];
 let enemySoldiers = [];
-let raiders = []; // Yağmacılar
+let raiders = [];
 
 function createMiner(id) {
     if (id > mineNodes.length) addMineNode(id);
     const assignedNode = mineNodes[id - 1] || mineNodes[0];
     return {
-        id: id,
-        type: 'miner',
-        name: `Madenci #${id}`,
+        id: id, type: 'miner', name: `Madenci #${id}`,
         x: zoneStorage.x + (Math.random() * 40 - 20),
         y: zoneStorage.y + (Math.random() * 40 - 20),
-        targetNode: assignedNode,
-        maxHp: 10,
-        hp: 10,
-        state: 'to_mine',
-        miningTimer: 0,
-        animTick: Math.random() * 10,
-        carrying: 0
+        targetNode: assignedNode, maxHp: 10, hp: 10,
+        state: 'to_mine', miningTimer: 0, animTick: Math.random() * 10, carrying: 0
     };
 }
 for (let i = 0; i < 3; i++) workers.push(createMiner(i + 1));
 
-// Taşıyıcı Bot (150 Altın)
 function createCarrier(id) {
     return {
-        id: id,
-        type: 'carrier',
-        name: `Taşıyıcı #${id}`,
-        x: zoneStorage.x,
-        y: zoneStorage.y + 30,
-        state: 'to_storage', // to_storage, to_shop
-        carrying: 0,
-        speed: 2.8,
-        animTick: Math.random() * 10
+        id: id, type: 'carrier', name: `Taşıyıcı #${id}`,
+        x: zoneStorage.x, y: zoneStorage.y + 30,
+        state: 'to_storage', carrying: 0, speed: 2.8, animTick: Math.random() * 10
     };
 }
 
-// Savaşçı & Topçu Oluşturma
 function createFighter(type, isEnemy = false) {
     const startX = isEnemy ? (zoneEnemyCamp.x - 40 + Math.random()*80) : (zoneStorage.x + 80 + Math.random()*60);
     const startY = isEnemy ? (zoneEnemyCamp.y + Math.random()*120 - 60) : (zoneStorage.y + Math.random()*120 - 60);
 
     const f = {
-        type: type,
-        isEnemy: isEnemy,
-        x: startX,
-        y: startY,
-        animTick: Math.random() * 10,
-        level: 1,
-        attackCooldown: 0,
-        skeletons: []
+        type: type, isEnemy: isEnemy, x: startX, y: startY,
+        animTick: Math.random() * 10, level: 1, attackCooldown: 0
     };
 
-    if (type === 'guard') {
-        f.name = "Nöbetçi"; f.maxHp = 11; f.speed = 2.4; f.range = 30; f.damage = 4;
-    } else if (type === 'hunter') {
-        f.name = "Avcı"; f.maxHp = 13; f.speed = 2.2; f.range = 220; f.damage = 3;
-    } else if (type === 'spear') {
-        f.name = "Mızraklı"; f.maxHp = 14; f.speed = 2.3; f.range = 40; f.damage = 5;
-    } else if (type === 'horse') {
-        f.name = "Atlı"; f.maxHp = 15; f.speed = 4.8; f.range = 26; f.damage = 10;
-    } else if (type === 'soldier') {
-        f.name = "Asker"; f.maxHp = 20; f.speed = 2.3; f.range = 35; f.damage = 10;
-    } else if (type === 'mage') {
-        f.name = "Büyücü"; f.maxHp = 23; f.speed = 2.0; f.range = 240; f.damage = 15;
-    } else if (type === 'giant') {
-        f.name = "Dev"; f.maxHp = 30; f.speed = 1.6; f.range = 38; f.damage = 23;
-    } else if (type === 'cannon') {
-        // TOPÇU (OSMANLI TOPU): Can 13, Lv.1, Sadece Sur Yıkar! Askerlere saldıramaz.
-        f.name = "Osmanlı Topçusu";
-        f.maxHp = 13;
-        f.speed = 1.8;
-        f.range = 260;
-        f.damage = 35; // Sura 35 hasar
-    } else if (type === 'skeleton') {
-        f.name = "İskelet"; f.maxHp = 5; f.speed = 2.6; f.range = 25; f.damage = 3;
-    }
+    if (type === 'guard') { f.name = "Nöbetçi"; f.maxHp = 11; f.speed = 2.4; f.range = 30; f.damage = 4; }
+    else if (type === 'hunter') { f.name = "Avcı"; f.maxHp = 13; f.speed = 2.2; f.range = 220; f.damage = 3; }
+    else if (type === 'spear') { f.name = "Mızraklı"; f.maxHp = 14; f.speed = 2.3; f.range = 40; f.damage = 5; }
+    else if (type === 'horse') { f.name = "Atlı"; f.maxHp = 15; f.speed = 4.8; f.range = 26; f.damage = 10; }
+    else if (type === 'soldier') { f.name = "Asker"; f.maxHp = 20; f.speed = 2.3; f.range = 35; f.damage = 10; }
+    else if (type === 'mage') { f.name = "Büyücü"; f.maxHp = 23; f.speed = 2.0; f.range = 240; f.damage = 15; }
+    else if (type === 'giant') { f.name = "Dev"; f.maxHp = 30; f.speed = 1.6; f.range = 38; f.damage = 23; }
+    else if (type === 'cannon') { f.name = "Osmanlı Topçusu"; f.maxHp = 13; f.speed = 1.8; f.range = 260; f.damage = 35; }
+
     f.hp = f.maxHp;
     return f;
 }
 
-// Rakip Krallık Savunması
 function spawnEnemyGarrison() {
     enemySoldiers = [
-        createFighter('guard', true),
-        createFighter('hunter', true),
-        createFighter('spear', true),
-        createFighter('horse', true),
-        createFighter('soldier', true),
-        createFighter('mage', true),
+        createFighter('guard', true), createFighter('hunter', true),
+        createFighter('spear', true), createFighter('horse', true),
+        createFighter('soldier', true), createFighter('mage', true),
         createFighter('giant', true)
     ];
 }
 spawnEnemyGarrison();
 
-// Sınır Ağaçları (Haritanın Etrafındaki Geçilmez Orman)
+// Sınır Ağaçları
 const trees = [];
 for (let x = 0; x <= WORLD_W; x += 65) {
     trees.push({ x: x, y: 35 });
@@ -796,11 +741,10 @@ for (let y = 0; y <= WORLD_H; y += 65) {
 }
 
 /* ==========================================================================
-   SANAL JOYSTICK & DOKUNMATİK GİRİŞLER
+   SANAL JOYSTICK & KONTROLLER
    ========================================================================== */
 let joystickActive = false;
-let joyDx = 0;
-let joyDy = 0;
+let joyDx = 0, joyDy = 0;
 const joyZone = document.getElementById('joystick-zone');
 const joyKnob = document.getElementById('joystick-knob');
 
@@ -826,19 +770,14 @@ function handleTouchMove(e) {
     joyDy = deltaY / maxRadius;
 }
 
-joyZone.addEventListener('touchstart', e => {
-    joystickActive = true;
-    handleTouchMove(e);
-});
+joyZone.addEventListener('touchstart', e => { joystickActive = true; handleTouchMove(e); });
 window.addEventListener('touchmove', handleTouchMove, { passive: false });
 window.addEventListener('touchend', () => {
     joystickActive = false;
     joyKnob.style.transform = 'translate(0px, 0px)';
-    joyDx = 0;
-    joyDy = 0;
+    joyDx = 0; joyDy = 0;
 });
 
-// Klavye
 const keys = {};
 window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
@@ -846,25 +785,18 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-// Dokunmatik Aksiyon Butonları
-document.getElementById('btn-touch-mine').addEventListener('click', doPlayerMine);
-document.getElementById('btn-touch-wall').addEventListener('click', doBuildWall);
-document.getElementById('btn-touch-war').addEventListener('click', toggleWar);
+document.getElementById('btn-touch-mine').onclick = doPlayerMine;
+document.getElementById('btn-touch-wall').onclick = doBuildWall;
+document.getElementById('btn-touch-war').onclick = toggleWar;
 
-// Popuplar & Mermiler
 let popups = [];
-let projectiles = [];
 let warActive = false;
 
 function addPopup(worldX, worldY, text, color = '#facc15') {
     popups.push({ x: worldX, y: worldY, text: text, color: color, life: 1.0 });
 }
 
-/* ==========================================================================
-   ANA KARAKTER MADEN KAZMA & SUR İNŞA ETME
-   ========================================================================== */
 function doPlayerMine() {
-    // Yakındaki maden kayasını bul
     let nearNode = null;
     mineNodes.forEach(node => {
         const d = Math.hypot(player.x - node.x, player.y - node.y);
@@ -877,7 +809,7 @@ function doPlayerMine() {
             playSound('mine');
             addPopup(player.x, player.y - 20, `+1 ${MINE_TIERS[currentMineTierIndex].name} Kazdın! ⛏️`, '#38bdf8');
         } else {
-            addPopup(player.x, player.y - 20, `Çantan Dolu! Depoya veya Shop'a git 🎒`, '#f87171');
+            addPopup(player.x, player.y - 20, `Çantan Dolu! 🎒`, '#f87171');
         }
     } else {
         addPopup(player.x, player.y - 20, `Kazmak için bir maden kayasına yaklaş!`, '#e2e8f0');
@@ -891,11 +823,7 @@ function doBuildWall() {
             id: `wall_${Date.now()}`,
             x: Math.round(player.x),
             y: Math.round(player.y - 35),
-            w: 80,
-            h: 30,
-            owner: 'me',
-            hp: 120,
-            maxHp: 120
+            w: 80, h: 30, hp: 120, maxHp: 120
         };
         walls.push(newWall);
         playSound('coin');
@@ -909,38 +837,20 @@ function doBuildWall() {
     }
 }
 
-/* ==========================================================================
-   YAĞMACI SİSTEMİ (HER 5 DAKİKADA BİR DOĞAN HAYDUT KAPLUMBAĞA)
-   ========================================================================== */
 function spawnRaider() {
-    // Haritanın rastgele bir orman kenarından çıkar
-    const side = Math.floor(Math.random() * 4);
-    let rx = 100, ry = 100;
-    if (side === 0) { rx = 150 + Math.random() * (WORLD_W - 300); ry = 100; }
-    else if (side === 1) { rx = 150 + Math.random() * (WORLD_W - 300); ry = WORLD_H - 120; }
-    else if (side === 2) { rx = 100; ry = 150 + Math.random() * (WORLD_H - 300); }
-    else { rx = WORLD_W - 120; ry = 150 + Math.random() * (WORLD_H - 300); }
-
+    const rx = 150 + Math.random() * (WORLD_W - 300);
+    const ry = 100;
     raiders.push({
-        id: `raider_${Date.now()}`,
-        name: "Yağmacı",
-        x: rx,
-        y: ry,
-        hp: 10,
-        maxHp: 10,
-        damage: 3,
-        speed: 2.1,
-        animTick: 0,
-        cooldown: 0
+        id: `raider_${Date.now()}`, name: "Yağmacı", x: rx, y: ry,
+        hp: 10, maxHp: 10, damage: 3, speed: 2.1, animTick: 0, cooldown: 0
     });
-    addPopup(rx, ry, `⚠️ YAĞMACI ORMANDAN ÇIKTI!`, '#ef4444');
+    addPopup(rx, ry, `⚠️ YAĞMACI GELDİ!`, '#ef4444');
 }
-// 1. dakikada ve her 5 dakikada (300 sn) bir yağmacı doğar
 setTimeout(spawnRaider, 60000);
 setInterval(spawnRaider, 300000);
 
 /* ==========================================================================
-   ÇİZİMLER (KAPLUMBAĞALAR, SURLAR, TOPÇU VE HARİTA)
+   ÇİZİMLER
    ========================================================================== */
 function drawTurtle(ctx, x, y, opt = {}) {
     const isMoving = opt.isMoving || false;
@@ -996,37 +906,27 @@ function drawTurtle(ctx, x, y, opt = {}) {
     ctx.fillRect(-4, -20 - bodyBob, 3, 3);
     ctx.fillRect(2, -20 - bodyBob, 3, 3);
 
-    // Aksesuar / Ekipman
     if (opt.isPlayer) {
-        // Taç
         ctx.fillStyle = '#facc15';
         ctx.beginPath();
         ctx.moveTo(-7, -26 - bodyBob); ctx.lineTo(-4, -32 - bodyBob); ctx.lineTo(0, -27 - bodyBob);
         ctx.lineTo(4, -32 - bodyBob); ctx.lineTo(7, -26 - bodyBob); ctx.closePath();
         ctx.fill();
     } else if (type === 'miner') {
-        // Baret & Kazma
         ctx.fillStyle = '#eab308';
         ctx.beginPath(); ctx.arc(0, -25 - bodyBob, 8, Math.PI, 0); ctx.fill();
         ctx.fillStyle = PICK_TIERS[currentPickTierIndex].color;
         ctx.fillRect(10, -12 - bodyBob, 4, 14);
     } else if (type === 'carrier') {
-        // Taşıyıcı Çuvalı
         ctx.fillStyle = '#d97706';
         ctx.beginPath(); ctx.arc(12, -4 - bodyBob, 7, 0, Math.PI*2); ctx.fill();
     } else if (type === 'cannon') {
-        // Osmanlı Topu Namlusu
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(6, -8 - bodyBob, 18, 7);
-        ctx.fillStyle = '#b45309'; // Ahşap tekerlek
+        ctx.fillStyle = '#b45309';
         ctx.beginPath(); ctx.arc(10, 2 - bodyBob, 6, 0, Math.PI*2); ctx.fill();
-    } else if (type === 'raider') {
-        // Haydut Maskesi
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-7, -21 - bodyBob, 14, 4);
     }
 
-    // Can Barı
     if (hp < maxHp || type !== 'miner') {
         ctx.fillStyle = '#ef4444';
         ctx.fillRect(-12, -32 - bodyBob, 24, 3.5);
@@ -1045,108 +945,99 @@ function drawTurtle(ctx, x, y, opt = {}) {
 }
 
 function drawStructures() {
-    // 1. Sınır Ağaçları
     trees.forEach(t => {
         ctx.fillStyle = '#14532d';
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, 28, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(t.x, t.y, 28, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#166534';
-        ctx.beginPath();
-        ctx.arc(t.x, t.y - 4, 20, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(t.x, t.y - 4, 20, 0, Math.PI * 2); ctx.fill();
     });
 
-    // 2. Maden Kayaları (Her Madenciye Ayrı Maden)
     const curTier = MINE_TIERS[currentMineTierIndex];
-    mineNodes.forEach((node, idx) => {
-        ctx.fillStyle = '#78350f';
-        ctx.strokeStyle = '#451a03';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(node.x - node.w/2, node.y - node.h/2, node.w, node.h, 12);
-        ctx.fill();
-        ctx.stroke();
+    mineNodes.forEach(node => {
+        ctx.fillStyle = '#78350f'; ctx.strokeStyle = '#451a03'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.roundRect(node.x - node.w/2, node.y - node.h/2, node.w, node.h, 12);
+        ctx.fill(); ctx.stroke();
 
         ctx.fillStyle = curTier.color;
         ctx.fillRect(node.x - 12, node.y - 10, 10, 8);
         ctx.fillRect(node.x + 4, node.y - 6, 12, 10);
 
-        ctx.fillStyle = '#fef08a';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fef08a'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`⛏️ Maden #${node.id}`, node.x, node.y - node.h/2 - 6);
     });
 
-    // 3. Depo
-    ctx.fillStyle = '#854d0e';
-    ctx.strokeStyle = '#451a03';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(zoneStorage.x - zoneStorage.w/2, zoneStorage.y - zoneStorage.h/2, zoneStorage.w, zoneStorage.h, 10);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
+    // Depo
+    ctx.fillStyle = '#854d0e'; ctx.strokeStyle = '#451a03'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.roundRect(zoneStorage.x - zoneStorage.w/2, zoneStorage.y - zoneStorage.h/2, zoneStorage.w, zoneStorage.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(`📦 DEPO`, zoneStorage.x, zoneStorage.y - 18);
-    ctx.fillStyle = '#facc15';
-    ctx.fillText(`${storageOreCount} Maden`, zoneStorage.x, zoneStorage.y + 10);
+    ctx.fillStyle = '#facc15'; ctx.fillText(`${storageOreCount} Maden`, zoneStorage.x, zoneStorage.y + 10);
 
-    // 4. Shop (Pazar)
-    ctx.fillStyle = '#1e3a8a';
-    ctx.strokeStyle = '#172554';
-    ctx.beginPath();
-    ctx.roundRect(zoneShop.x - zoneShop.w/2, zoneShop.y - zoneShop.h/2, zoneShop.w, zoneShop.h, 10);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#ef4444';
-    ctx.fillRect(zoneShop.x - zoneShop.w/2, zoneShop.y - zoneShop.h/2, zoneShop.w, 14);
-    ctx.fillStyle = '#fef08a';
-    ctx.font = 'bold 12px sans-serif';
+    // Shop
+    ctx.fillStyle = '#1e3a8a'; ctx.strokeStyle = '#172554';
+    ctx.beginPath(); ctx.roundRect(zoneShop.x - zoneShop.w/2, zoneShop.y - zoneShop.h/2, zoneShop.w, zoneShop.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ef4444'; ctx.fillRect(zoneShop.x - zoneShop.w/2, zoneShop.y - zoneShop.h/2, zoneShop.w, 14);
+    ctx.fillStyle = '#fef08a'; ctx.font = 'bold 12px sans-serif';
     ctx.fillText(`🛒 SHOP`, zoneShop.x, zoneShop.y - 18);
-    ctx.fillStyle = '#67e8f9';
-    ctx.font = '10px sans-serif';
+    ctx.fillStyle = '#67e8f9'; ctx.font = '10px sans-serif';
     ctx.fillText(`+${curTier.value} Altın/Birim`, zoneShop.x, zoneShop.y + 12);
 
-    // 5. Rakip Krallık
-    ctx.fillStyle = '#7f1d1d';
-    ctx.strokeStyle = '#450a0a';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.roundRect(zoneEnemyCamp.x - zoneEnemyCamp.w/2, zoneEnemyCamp.y - zoneEnemyCamp.h/2, zoneEnemyCamp.w, zoneEnemyCamp.h, 16);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px sans-serif';
+    // Rakip Kale
+    ctx.fillStyle = '#7f1d1d'; ctx.strokeStyle = '#450a0a'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.roundRect(zoneEnemyCamp.x - zoneEnemyCamp.w/2, zoneEnemyCamp.y - zoneEnemyCamp.h/2, zoneEnemyCamp.w, zoneEnemyCamp.h, 16);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif';
     ctx.fillText(`⚔️ RAKİP KALE`, zoneEnemyCamp.x, zoneEnemyCamp.y - 65);
 
-    // 6. Surlar (Duvarlar)
+    // Surlar
     walls.forEach(w => {
-        ctx.fillStyle = '#64748b';
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(w.x - w.w/2, w.y - w.h/2, w.w, w.h, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#e2e8f0';
-        ctx.font = 'bold 10px sans-serif';
+        ctx.fillStyle = '#64748b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.roundRect(w.x - w.w/2, w.y - w.h/2, w.w, w.h, 6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 10px sans-serif';
         ctx.fillText(`🧱 SUR (Can:${w.hp})`, w.x, w.y - 14);
     });
 }
 
+// Oyuncu Pusulası (Ekran Dışındaki Oyuncuların Yönünü Gösteren Oklar)
+function drawPlayerPointers() {
+    for (const id in remotePlayers) {
+        const rp = remotePlayers[id];
+        const screenX = rp.x - camera.x;
+        const screenY = rp.y - camera.y;
+
+        // Ekranın dışındaysa ok çiz
+        if (screenX < 40 || screenX > canvas.width - 40 || screenY < 50 || screenY > canvas.height - 80) {
+            const angle = Math.atan2(rp.y - player.y, rp.x - player.x);
+            const edgeX = Math.max(50, Math.min(canvas.width - 50, canvas.width/2 + Math.cos(angle) * (canvas.width/2 - 60)));
+            const edgeY = Math.max(70, Math.min(canvas.height - 90, canvas.height/2 + Math.sin(angle) * (canvas.height/2 - 80)));
+
+            ctx.save();
+            ctx.translate(edgeX, edgeY);
+            ctx.rotate(angle);
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.moveTo(14, 0); ctx.lineTo(-10, -9); ctx.lineTo(-10, 9); ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+            ctx.fillText(`${rp.name || 'Oyuncu'} 🌟`, edgeX, edgeY - 14);
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
 /* ==========================================================================
-   OYUN DÖNGÜSÜ & MEKANİKLERİ
+   OYUN DÖNGÜSÜ
    ========================================================================== */
 let lastTime = performance.now();
 
 function update(dt) {
-    // 1. Ana Karakter Hareketi (Joystick veya Klavye)
     let mx = joyDx;
     let my = joyDy;
     if (keys['w'] || keys['arrowup']) my -= 1;
@@ -1161,7 +1052,6 @@ function update(dt) {
         player.moving = true;
         player.animTick += dt;
 
-        // Ağaç sınırlarına çarpışma engeli
         player.x = Math.max(70, Math.min(WORLD_W - 70, player.x));
         player.y = Math.max(70, Math.min(WORLD_H - 70, player.y));
 
@@ -1170,13 +1060,12 @@ function update(dt) {
         player.moving = false;
     }
 
-    // Kamera Takibi
     camera.x = player.x - canvas.width / 2;
     camera.y = player.y - canvas.height / 2;
     camera.x = Math.max(0, Math.min(WORLD_W - canvas.width, camera.x));
     camera.y = Math.max(0, Math.min(WORLD_H - canvas.height, camera.y));
 
-    // 2. Depodan Maden Alımı & Shop Satışı
+    // Depodan Alma & Satış
     const distStorage = Math.hypot(player.x - zoneStorage.x, player.y - zoneStorage.y);
     if (distStorage < 60 && storageOreCount > 0 && playerCarriedOre < PLAYER_MAX_CARRY) {
         const take = Math.min(storageOreCount, PLAYER_MAX_CARRY - playerCarriedOre);
@@ -1196,7 +1085,7 @@ function update(dt) {
         sendStatsUpdate();
     }
 
-    // 3. Madenciler (Her Biri Kendi Düğümüne Gider)
+    // Madenciler
     const pickTier = PICK_TIERS[currentPickTierIndex];
     workers.forEach(w => {
         w.animTick += dt;
@@ -1228,7 +1117,7 @@ function update(dt) {
         }
     });
 
-    // 4. Taşıyıcı Botlar (Otomatik Depodan Alıp Shop'a Satarlar)
+    // Taşıyıcı Botlar
     carriers.forEach(c => {
         c.animTick += dt;
         if (c.state === 'to_storage') {
@@ -1236,13 +1125,11 @@ function update(dt) {
             if (dist > 15) {
                 c.x += ((zoneStorage.x - c.x) / dist) * c.speed;
                 c.y += ((zoneStorage.y - c.y) / dist) * c.speed;
-            } else {
-                if (storageOreCount > 0) {
-                    const take = Math.min(storageOreCount, 4);
-                    storageOreCount -= take;
-                    c.carrying = take;
-                    c.state = 'to_shop';
-                }
+            } else if (storageOreCount > 0) {
+                const take = Math.min(storageOreCount, 4);
+                storageOreCount -= take;
+                c.carrying = take;
+                c.state = 'to_shop';
             }
         } else if (c.state === 'to_shop') {
             const dist = Math.hypot(zoneShop.x - c.x, zoneShop.y - c.y);
@@ -1253,7 +1140,7 @@ function update(dt) {
                 const earn = c.carrying * MINE_TIERS[currentMineTierIndex].value;
                 money += earn;
                 playSound('coin');
-                addPopup(c.x, c.y - 15, `+${earn} Altın (Bot Taşıdı) 💰`, '#67e8f9');
+                addPopup(c.x, c.y - 15, `+${earn} Altın (Bot) 💰`, '#67e8f9');
                 c.carrying = 0;
                 c.state = 'to_storage';
                 updateUI();
@@ -1262,41 +1149,34 @@ function update(dt) {
         }
     });
 
-    // 5. Yağmacı Yapay Zekası
-    raiders.forEach((r, idx) => {
+    // Yağmacılar
+    raiders.forEach(r => {
         r.animTick += dt;
         r.cooldown = Math.max(0, r.cooldown - dt);
-
-        // Yakındaki madenci veya depoya yürür
         const dist = Math.hypot(zoneStorage.x - r.x, zoneStorage.y - r.y);
         if (dist > 25) {
             r.x += ((zoneStorage.x - r.x) / dist) * r.speed;
             r.y += ((zoneStorage.y - r.y) / dist) * r.speed;
-        } else {
-            if (r.cooldown <= 0) {
-                r.cooldown = 2.0;
-                if (storageOreCount > 0) {
-                    storageOreCount = Math.max(0, storageOreCount - 2);
-                    addPopup(r.x, r.y - 15, `-2 Maden Yağmalandı! 💀`, '#ef4444');
-                }
+        } else if (r.cooldown <= 0) {
+            r.cooldown = 2.0;
+            if (storageOreCount > 0) {
+                storageOreCount = Math.max(0, storageOreCount - 2);
+                addPopup(r.x, r.y - 15, `-2 Maden Yağmalandı! 💀`, '#ef4444');
             }
         }
 
-        // Askerlerimiz yağmacıya saldırır
         soldiers.forEach(s => {
-            const sd = Math.hypot(r.x - s.x, r.y - s.y);
-            if (sd < 160 && s.type !== 'cannon') {
+            if (s.type !== 'cannon' && Math.hypot(r.x - s.x, r.y - s.y) < 160) {
                 r.hp -= dt * 4;
             }
         });
     });
     raiders = raiders.filter(r => r.hp > 0);
 
-    // 6. Savaş & Topçu Mantığı
+    // Savaş
     if (warActive) {
-        // Topçunun görevi: Düşman surlarını yıkmak!
         soldiers.filter(s => s.type === 'cannon').forEach(cannon => {
-            cannon.attackCooldown = Math.max(0, cannon.attackCooldown - dt);
+            cannon.attackCooldown = Math.max(0, (cannon.attackCooldown || 0) - dt);
             if (walls.length > 0) {
                 const targetWall = walls[0];
                 const d = Math.hypot(targetWall.x - cannon.x, targetWall.y - cannon.y);
@@ -1307,7 +1187,7 @@ function update(dt) {
                     cannon.attackCooldown = 2.2;
                     playSound('cannon');
                     targetWall.hp -= cannon.damage;
-                    addPopup(targetWall.x, targetWall.y, `-35 GÜLLE DARBESİ! 💣`, '#f97316');
+                    addPopup(targetWall.x, targetWall.y, `-35 GÜLLE! 💣`, '#f97316');
                     if (targetWall.hp <= 0) {
                         walls.shift();
                         addPopup(targetWall.x, targetWall.y, `SUR YIKILDI! 💥`, '#ef4444');
@@ -1316,21 +1196,16 @@ function update(dt) {
             }
         });
 
-        // Diğer askerler hücum eder (Surdan sadece sahibi geçebilir!)
         updateWarCombat(soldiers, enemySoldiers, dt);
         updateWarCombat(enemySoldiers, soldiers, dt);
 
         soldiers = soldiers.filter(s => s.hp > 0);
         enemySoldiers = enemySoldiers.filter(s => s.hp > 0);
 
-        if (enemySoldiers.length === 0) {
-            endWar(true);
-        } else if (soldiers.length === 0) {
-            endWar(false);
-        }
+        if (enemySoldiers.length === 0) endWar(true);
+        else if (soldiers.length === 0) endWar(false);
     }
 
-    // Popuplar
     for (let i = popups.length - 1; i >= 0; i--) {
         popups[i].y -= dt * 30;
         popups[i].life -= dt * 0.9;
@@ -1340,9 +1215,9 @@ function update(dt) {
 
 function updateWarCombat(allies, enemies, dt) {
     allies.forEach(a => {
-        if (a.type === 'cannon') return; // Topçu askere saldırmaz
+        if (a.type === 'cannon') return;
         a.animTick += dt;
-        a.attackCooldown = Math.max(0, a.attackCooldown - dt);
+        a.attackCooldown = Math.max(0, (a.attackCooldown || 0) - dt);
 
         let nearest = null;
         let minD = 99999;
@@ -1366,7 +1241,7 @@ function updateWarCombat(allies, enemies, dt) {
 
 function toggleWar() {
     if (soldiers.length === 0) {
-        alert("Savaşa girmeden önce kışlandan en az 1 asker satın almalısın!");
+        alert("Savaşa girmeden önce en az 1 asker satın almalısın!");
         return;
     }
     warActive = !warActive;
@@ -1378,20 +1253,17 @@ function endWar(victory) {
     document.getElementById('war-banner').style.display = 'none';
     if (victory) {
         money += 1000;
-        alert("🏆 ZAFER! Rakip mağlup edildi ve 1000 Altın ganimet kazandın!");
+        alert("🏆 ZAFER! 1000 Altın Ganimet Kazandın!");
     } else {
         if (money >= 1000) money -= 1000;
         else workers.splice(0, Math.min(3, workers.length));
-        alert("💀 YENİLGİ! Rakip ganimeti aldı!");
+        alert("💀 YENİLGİ! Ganimet kaybedildi!");
     }
     spawnEnemyGarrison();
     updateUI();
     sendStatsUpdate();
 }
 
-/* ==========================================================================
-   RENDER
-   ========================================================================== */
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1404,7 +1276,6 @@ function render() {
 
     drawStructures();
 
-    // Madenciler
     workers.forEach(w => {
         drawTurtle(ctx, w.x, w.y, {
             type: 'miner', name: w.name, hp: w.hp, maxHp: w.maxHp,
@@ -1412,23 +1283,18 @@ function render() {
         });
     });
 
-    // Taşıyıcı Botlar
     carriers.forEach(c => {
         drawTurtle(ctx, c.x, c.y, {
-            type: 'carrier', name: c.name, hp: 10, maxHp: 10,
-            isMoving: true, animTick: c.animTick
+            type: 'carrier', name: c.name, hp: 10, maxHp: 10, isMoving: true, animTick: c.animTick
         });
     });
 
-    // Yağmacılar
     raiders.forEach(r => {
         drawTurtle(ctx, r.x, r.y, {
-            type: 'raider', name: "Haydut", hp: r.hp, maxHp: r.maxHp,
-            isMoving: true, animTick: r.animTick
+            type: 'raider', name: "Haydut", hp: r.hp, maxHp: r.maxHp, isMoving: true, animTick: r.animTick
         });
     });
 
-    // Askerler
     soldiers.forEach(s => {
         drawTurtle(ctx, s.x, s.y, {
             type: s.type, name: s.name, hp: s.hp, maxHp: s.maxHp,
@@ -1436,7 +1302,6 @@ function render() {
         });
     });
 
-    // Düşman Askerleri
     enemySoldiers.forEach(e => {
         drawTurtle(ctx, e.x, e.y, {
             type: e.type, name: `Düşman ${e.name}`, hp: e.hp, maxHp: e.maxHp,
@@ -1444,7 +1309,7 @@ function render() {
         });
     });
 
-    // Diğer Online Oyuncular
+    // DİĞER ONLİNE OYUNCULAR (TÜMÜ AYNI HARİTADA!)
     for (const id in remotePlayers) {
         const rp = remotePlayers[id];
         drawTurtle(ctx, rp.x, rp.y, {
@@ -1460,7 +1325,6 @@ function render() {
         hp: player.hp, maxHp: player.maxHp, isMoving: player.moving, animTick: player.animTick
     });
 
-    // Popuplar
     popups.forEach(p => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.life);
@@ -1473,6 +1337,9 @@ function render() {
     });
 
     ctx.restore();
+
+    // Ekran Dışındaki Oyuncuların Pusula Okları
+    drawPlayerPointers();
 }
 
 function gameLoop(now) {
@@ -1485,7 +1352,7 @@ function gameLoop(now) {
 requestAnimationFrame(gameLoop);
 
 /* ==========================================================================
-   UI, SATIN ALMALAR VE BUTONLAR
+   UI VE SATIN ALMALAR
    ========================================================================== */
 function updateUI() {
     document.getElementById('ui-gold').innerText = money;
@@ -1515,39 +1382,33 @@ function updateUI() {
     document.getElementById('btn-buy-giant').disabled = (money < 220);
 }
 
-// Buton Olayları
 document.getElementById('btn-up-mine').onclick = () => {
     const cur = MINE_TIERS[currentMineTierIndex];
     if (cur.upgradeCost > 0 && money >= cur.upgradeCost) {
-        money -= cur.upgradeCost; currentMineTierIndex++;
-        playSound('coin'); updateUI();
+        money -= cur.upgradeCost; currentMineTierIndex++; playSound('coin'); updateUI();
     }
 };
 document.getElementById('btn-up-pick').onclick = () => {
     const cur = PICK_TIERS[currentPickTierIndex];
     if (cur.upgradeCost > 0 && money >= cur.upgradeCost) {
-        money -= cur.upgradeCost; currentPickTierIndex++;
-        playSound('coin'); updateUI();
+        money -= cur.upgradeCost; currentPickTierIndex++; playSound('coin'); updateUI();
     }
 };
 document.getElementById('btn-buy-miner').onclick = () => {
     if (money >= 45) {
-        money -= 45; workers.push(createMiner(workers.length + 1));
-        playSound('coin'); updateUI();
+        money -= 45; workers.push(createMiner(workers.length + 1)); playSound('coin'); updateUI();
     }
 };
 document.getElementById('btn-buy-carrier').onclick = () => {
     if (money >= 150) {
-        money -= 150; carriers.push(createCarrier(carriers.length + 1));
-        playSound('coin'); updateUI();
+        money -= 150; carriers.push(createCarrier(carriers.length + 1)); playSound('coin'); updateUI();
         addPopup(player.x, player.y - 20, "Taşıyıcı Bot Göreve Başladı! 📦", '#38bdf8');
     }
 };
 document.getElementById('btn-build-wall').onclick = doBuildWall;
 document.getElementById('btn-buy-cannon').onclick = () => {
     if (money >= 190) {
-        money -= 190; soldiers.push(createFighter('cannon', false));
-        playSound('cannon'); updateUI();
+        money -= 190; soldiers.push(createFighter('cannon', false)); playSound('cannon'); updateUI();
         addPopup(player.x, player.y - 20, "Osmanlı Topçusu Katıldı! 💣", '#f59e0b');
     }
 };
@@ -1559,78 +1420,90 @@ document.getElementById('btn-buy-soldier').onclick = () => { if (money >= 130) {
 document.getElementById('btn-buy-mage').onclick = () => { if (money >= 160) { money -= 160; soldiers.push(createFighter('mage')); playSound('coin'); updateUI(); }};
 document.getElementById('btn-buy-giant').onclick = () => { if (money >= 220) { money -= 220; soldiers.push(createFighter('giant')); playSound('coin'); updateUI(); }};
 
-// Rehber Aç/Kapat
 const guideModal = document.getElementById('guide-modal');
 document.getElementById('btn-toggle-guide').onclick = () => {
     guideModal.style.display = (guideModal.style.display === 'block') ? 'none' : 'block';
 };
 document.getElementById('btn-close-guide').onclick = () => { guideModal.style.display = 'none'; };
 
-// Oda Kodu Değiştirme Butonu (Tıklanınca klavye açılır)
-document.getElementById('btn-room-badge').onclick = () => {
-    const newRoom = prompt("Katılmak veya oluşturmak istediğiniz ODA KODUNU girin:", roomCode);
-    if (newRoom && newRoom.trim() !== "") {
-        roomCode = newRoom.trim().toUpperCase();
-        document.getElementById('ui-room').innerText = roomCode;
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: 'join_room', room: roomCode, name: myPlayerName }));
-        }
-    }
-};
-
 /* ==========================================================================
-   AĞ BAĞLANTISI (WebSocket - Oda Bazlı Senkronizasyon)
+   AĞ BAĞLANTISI (TEK ORTAK ODA SENKRONİZASYONU)
    ========================================================================== */
 let socket = null;
 let remotePlayers = {};
+let myId = null;
 let lastSend = 0;
 
-function initNetwork(targetRoom) {
+function connectSocket() {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host || 'localhost:8080';
     const wsUrl = `${proto}//${host}`;
 
     try {
         socket = new WebSocket(wsUrl);
+
         socket.onopen = () => {
-            socket.send(JSON.stringify({
-                type: 'join_room',
-                room: targetRoom,
-                name: myPlayerName
-            }));
+            socket.send(JSON.stringify({ type: 'join', name: myPlayerName }));
         };
 
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'init') {
+                    myId = data.id;
                     remotePlayers = {};
                     data.players.forEach(p => {
-                        if (p.id !== data.id) remotePlayers[p.id] = p;
+                        if (p.id !== myId) remotePlayers[p.id] = p;
                     });
+                    updateOnlineCount();
                 } else if (data.type === 'player_join') {
-                    remotePlayers[data.player.id] = data.player;
-                    addPopup(data.player.x, data.player.y, `Odaya Katıldı: ${data.player.name} 👑`, '#67e8f9');
+                    if (data.player.id !== myId) {
+                        remotePlayers[data.player.id] = data.player;
+                        updateOnlineCount();
+                        addPopup(data.player.x, data.player.y, `Yeni Kaplumbağa Katıldı: ${data.player.name} 👑`, '#67e8f9');
+                    }
                 } else if (data.type === 'player_move') {
-                    if (remotePlayers[data.id]) {
-                        remotePlayers[data.id].x = data.x;
-                        remotePlayers[data.id].y = data.y;
+                    if (!remotePlayers[data.id]) {
+                        remotePlayers[data.id] = { id: data.id, name: data.name || "Oyuncu", x: data.x, y: data.y };
+                    }
+                    remotePlayers[data.id].x = data.x;
+                    remotePlayers[data.id].y = data.y;
+                    remotePlayers[data.id].name = data.name || remotePlayers[data.id].name;
+                    remotePlayers[data.id].animTick = (remotePlayers[data.id].animTick || 0) + 0.1;
+                } else if (data.type === 'player_update') {
+                    if (remotePlayers[data.player.id]) {
+                        remotePlayers[data.player.id].name = data.player.name;
                     }
                 } else if (data.type === 'wall_built') {
                     walls.push(data.wall);
                 } else if (data.type === 'player_leave') {
                     delete remotePlayers[data.id];
+                    updateOnlineCount();
                 }
             } catch(e) {}
+        };
+
+        socket.onclose = () => {
+            setTimeout(connectSocket, 2500);
         };
     } catch(e) {}
 }
 
+function updateOnlineCount() {
+    const total = Object.keys(remotePlayers).length + 1;
+    document.getElementById('ui-online-count').innerText = `${total} Kaplumbağa Çevrim İçi`;
+}
+
 function sendNetworkMove() {
     const now = performance.now();
-    if (socket && socket.readyState === WebSocket.OPEN && now - lastSend > 50) {
+    if (socket && socket.readyState === WebSocket.OPEN && now - lastSend > 45) {
         lastSend = now;
-        socket.send(JSON.stringify({ type: 'move', x: Math.round(player.x), y: Math.round(player.y) }));
+        socket.send(JSON.stringify({
+            type: 'move',
+            name: myPlayerName,
+            x: Math.round(player.x),
+            y: Math.round(player.y)
+        }));
     }
 }
 
@@ -1640,24 +1513,18 @@ function sendStatsUpdate() {
     }
 }
 
-/* ==========================================================================
-   ANA MENÜ BAŞLATMA
-   ========================================================================== */
+// Oyuna Başla Butonu (Tek Ortak Odaya Girer)
 document.getElementById('btn-play-now').onclick = () => {
-    myPlayerName = document.getElementById('inp-nickname').value.trim() || "Lider";
-    roomCode = document.getElementById('inp-room').value.trim().toUpperCase() || "GENEL";
-    document.getElementById('ui-room').innerText = roomCode;
+    myPlayerName = document.getElementById('inp-nickname').value.trim() || "Kral Kaplumbağa";
     document.getElementById('main-menu').style.display = 'none';
-    initNetwork(roomCode);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'join', name: myPlayerName }));
+    }
     updateUI();
 };
 
-document.getElementById('btn-random-room').onclick = () => {
-    const randCode = "KRAL-" + Math.floor(100 + Math.random() * 900);
-    document.getElementById('inp-room').value = randCode;
-    document.getElementById('btn-play-now').click();
-};
-
+// Ağ bağlantısını hemen başlat
+connectSocket();
 updateUI();
 </script>
 </body>

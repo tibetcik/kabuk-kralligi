@@ -5,11 +5,10 @@ import mimetypes
 import hashlib
 import base64
 import struct
-import random
 
 PORT = int(os.environ.get("PORT", 8080))
-ROOMS = {}   # room_code -> { writer: player_data }
-CLIENT_ROOMS = {} # writer -> room_code
+# TEK ORTAK ODA: Tüm oyuncular aynı dünyada buluşur!
+PLAYERS = {}  # writer -> player_data
 
 WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
@@ -28,12 +27,10 @@ def encode_ws_frame(data_str):
         header = struct.pack('!BBQ', 0x81, 127, length)
     return header + payload
 
-async def broadcast_room(room_code, message, exclude=None):
-    if room_code not in ROOMS:
-        return
+async def broadcast_all(message, exclude=None):
     frame = encode_ws_frame(message)
     dead_clients = []
-    for writer in list(ROOMS[room_code].keys()):
+    for writer in list(PLAYERS.keys()):
         if writer is not exclude:
             try:
                 writer.write(frame)
@@ -41,11 +38,10 @@ async def broadcast_room(room_code, message, exclude=None):
             except Exception:
                 dead_clients.append(writer)
     for dc in dead_clients:
-        if dc in ROOMS[room_code]:
-            del ROOMS[room_code][dc]
+        if dc in PLAYERS:
+            del PLAYERS[dc]
 
 async def handle_client(reader, writer):
-    current_room = "GENEL"
     player_id = None
     try:
         request_line = await reader.readline()
@@ -89,16 +85,41 @@ async def handle_client(reader, writer):
             writer.write(response.encode('utf-8'))
             await writer.drain()
             
-            player_id = f"turtle_{id(writer) % 10000}"
+            player_num = len(PLAYERS) + 1
+            player_id = f"p_{id(writer) % 10000}"
             
-            # WebSocket Loop
+            # Başlangıç pozisyonu ortak üs etrafı
+            PLAYERS[writer] = {
+                "id": player_id,
+                "name": f"Kral Kaplumbağa #{player_num}",
+                "x": 800 + (len(PLAYERS) * 50) % 300,
+                "y": 950 + (len(PLAYERS) * 40) % 200,
+                "money": 50
+            }
+            
+            # Yeni bağlanan oyuncuya mevcut herkesi gönder
+            init_msg = json.dumps({
+                "type": "init",
+                "id": player_id,
+                "players": list(PLAYERS.values())
+            })
+            writer.write(encode_ws_frame(init_msg))
+            await writer.drain()
+            
+            # Diğer tüm oyunculara yeni oyuncuyu anında duyur
+            await broadcast_all(json.dumps({
+                "type": "player_join",
+                "player": PLAYERS[writer]
+            }), exclude=writer)
+            
+            # Mesaj Dinleme Döngüsü
             while True:
                 head = await reader.read(2)
                 if len(head) < 2:
                     break
                 b1, b2 = head[0], head[1]
                 opcode = b1 & 0x0F
-                if opcode == 0x8:  # Close frame
+                if opcode == 0x8:  # Kapatma çerçevesi
                     break
                 
                 masked = (b2 & 0x80) != 0
@@ -121,78 +142,49 @@ async def handle_client(reader, writer):
                     data = json.loads(payload.decode('utf-8'))
                     msg_type = data.get("type")
                     
-                    if msg_type == "join_room":
-                        room_code = data.get("room", "GENEL").strip().upper() or "GENEL"
-                        current_room = room_code
-                        CLIENT_ROOMS[writer] = current_room
-                        if current_room not in ROOMS:
-                            ROOMS[current_room] = {}
-                        
-                        ROOMS[current_room][writer] = {
-                            "id": player_id,
-                            "name": data.get("name", f"Kaplumbağa #{len(ROOMS[current_room])+1}"),
-                            "x": 400 + (len(ROOMS[current_room]) * 100) % 800,
-                            "y": 400 + (len(ROOMS[current_room]) * 60) % 600,
-                            "money": 50,
-                            "room": current_room
-                        }
-                        
-                        # Odadaki mevcut oyuncuları gönder
-                        init_msg = json.dumps({
-                            "type": "init",
-                            "id": player_id,
-                            "room": current_room,
-                            "players": list(ROOMS[current_room].values())
-                        })
-                        writer.write(encode_ws_frame(init_msg))
-                        await writer.drain()
-                        
-                        # Odaya yeni oyuncuyu duyur
-                        await broadcast_room(current_room, json.dumps({
-                            "type": "player_join",
-                            "player": ROOMS[current_room][writer]
-                        }), exclude=writer)
-                        
+                    if msg_type == "join":
+                        # İsim güncelleme
+                        name = data.get("name", "").strip()
+                        if name:
+                            PLAYERS[writer]["name"] = name
+                            await broadcast_all(json.dumps({
+                                "type": "player_update",
+                                "player": PLAYERS[writer]
+                            }))
+                            
                     elif msg_type == "move":
-                        if current_room in ROOMS and writer in ROOMS[current_room]:
-                            p = ROOMS[current_room][writer]
+                        if writer in PLAYERS:
+                            p = PLAYERS[writer]
                             p["x"] = data.get("x", p["x"])
                             p["y"] = data.get("y", p["y"])
-                            await broadcast_room(current_room, json.dumps({
+                            p["name"] = data.get("name", p["name"])
+                            await broadcast_all(json.dumps({
                                 "type": "player_move",
                                 "id": player_id,
+                                "name": p["name"],
                                 "x": p["x"],
                                 "y": p["y"]
                             }), exclude=writer)
                             
                     elif msg_type == "stats_update":
-                        if current_room in ROOMS and writer in ROOMS[current_room]:
-                            p = ROOMS[current_room][writer]
+                        if writer in PLAYERS:
+                            p = PLAYERS[writer]
                             p["money"] = data.get("money", p["money"])
-                            await broadcast_room(current_room, json.dumps({
+                            await broadcast_all(json.dumps({
                                 "type": "player_stats",
                                 "id": player_id,
                                 "money": p["money"]
                             }), exclude=writer)
                             
                     elif msg_type == "wall_built":
-                        # Sur inşa edildiğinde odaya yayınla
-                        await broadcast_room(current_room, json.dumps({
+                        await broadcast_all(json.dumps({
                             "type": "wall_built",
-                            "owner": player_id,
                             "wall": data.get("wall")
                         }), exclude=writer)
-                        
-                    elif msg_type == "wall_destroyed":
-                        # Topçu sur yıktığında yayınla
-                        await broadcast_room(current_room, json.dumps({
-                            "type": "wall_destroyed",
-                            "wallId": data.get("wallId")
-                        }))
                 except Exception:
                     pass
         else:
-            # Static HTTP File Serving
+            # Statik Dosya Sunumu
             clean_path = path.split('?')[0]
             if clean_path in ('/', ''):
                 clean_path = '/index.html'
@@ -223,18 +215,20 @@ async def handle_client(reader, writer):
     except Exception:
         pass
     finally:
-        if current_room in ROOMS and writer in ROOMS[current_room]:
-            pid = ROOMS[current_room][writer]["id"]
-            del ROOMS[current_room][writer]
-            asyncio.create_task(broadcast_room(current_room, json.dumps({
+        if writer in PLAYERS:
+            pid = PLAYERS[writer]["id"]
+            pname = PLAYERS[writer]["name"]
+            del PLAYERS[writer]
+            asyncio.create_task(broadcast_all(json.dumps({
                 "type": "player_leave",
-                "id": pid
+                "id": pid,
+                "name": pname
             })))
         writer.close()
 
 async def main():
     server = await asyncio.start_server(handle_client, '0.0.0.0', PORT)
-    print(f"🐢 KABUK KRALLIĞI Sunucusu Port {PORT} üzerinde aktif!")
+    print(f"🐢 KABUK KRALLIĞI TEK ORTAK ODA Aktif! Port: {PORT}")
     async with server:
         await server.serve_forever()
 
