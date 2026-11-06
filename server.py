@@ -5,9 +5,11 @@ import mimetypes
 import hashlib
 import base64
 import struct
+import random
 
 PORT = int(os.environ.get("PORT", 8080))
-CLIENTS = {}  # websocket_writer -> player_data
+ROOMS = {}   # room_code -> { writer: player_data }
+CLIENT_ROOMS = {} # writer -> room_code
 
 WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
@@ -26,10 +28,12 @@ def encode_ws_frame(data_str):
         header = struct.pack('!BBQ', 0x81, 127, length)
     return header + payload
 
-async def broadcast(message, exclude=None):
+async def broadcast_room(room_code, message, exclude=None):
+    if room_code not in ROOMS:
+        return
     frame = encode_ws_frame(message)
     dead_clients = []
-    for writer in list(CLIENTS.keys()):
+    for writer in list(ROOMS[room_code].keys()):
         if writer is not exclude:
             try:
                 writer.write(frame)
@@ -37,12 +41,13 @@ async def broadcast(message, exclude=None):
             except Exception:
                 dead_clients.append(writer)
     for dc in dead_clients:
-        if dc in CLIENTS:
-            del CLIENTS[dc]
+        if dc in ROOMS[room_code]:
+            del ROOMS[room_code][dc]
 
 async def handle_client(reader, writer):
+    current_room = "GENEL"
+    player_id = None
     try:
-        # Read HTTP Request
         request_line = await reader.readline()
         if not request_line:
             writer.close()
@@ -66,7 +71,7 @@ async def handle_client(reader, writer):
                 k, v = line_str.split(':', 1)
                 headers[k.strip().lower()] = v.strip()
         
-        # Check if WebSocket Upgrade
+        # WebSocket Upgrade
         if headers.get('upgrade', '').lower() == 'websocket':
             ws_key = headers.get('sec-websocket-key')
             if not ws_key:
@@ -85,30 +90,8 @@ async def handle_client(reader, writer):
             await writer.drain()
             
             player_id = f"turtle_{id(writer) % 10000}"
-            CLIENTS[writer] = {
-                "id": player_id,
-                "x": 300 + (len(CLIENTS) * 40) % 300,
-                "y": 300,
-                "name": f"Kaplumbağa #{len(CLIENTS)+1}",
-                "money": 0
-            }
             
-            # Send current player info & existing players
-            init_msg = json.dumps({
-                "type": "init",
-                "id": player_id,
-                "players": [p for p in CLIENTS.values()]
-            })
-            writer.write(encode_ws_frame(init_msg))
-            await writer.drain()
-            
-            # Broadcast new player
-            await broadcast(json.dumps({
-                "type": "player_join",
-                "player": CLIENTS[writer]
-            }), exclude=writer)
-            
-            # WebSocket message loop
+            # WebSocket Loop
             while True:
                 head = await reader.read(2)
                 if len(head) < 2:
@@ -137,26 +120,75 @@ async def handle_client(reader, writer):
                 try:
                     data = json.loads(payload.decode('utf-8'))
                     msg_type = data.get("type")
-                    if msg_type == "move":
-                        CLIENTS[writer]["x"] = data.get("x", CLIENTS[writer]["x"])
-                        CLIENTS[writer]["y"] = data.get("y", CLIENTS[writer]["y"])
-                        CLIENTS[writer]["dir"] = data.get("dir", "down")
-                        await broadcast(json.dumps({
-                            "type": "player_move",
+                    
+                    if msg_type == "join_room":
+                        room_code = data.get("room", "GENEL").strip().upper() or "GENEL"
+                        current_room = room_code
+                        CLIENT_ROOMS[writer] = current_room
+                        if current_room not in ROOMS:
+                            ROOMS[current_room] = {}
+                        
+                        ROOMS[current_room][writer] = {
                             "id": player_id,
-                            "x": CLIENTS[writer]["x"],
-                            "y": CLIENTS[writer]["y"],
-                            "dir": CLIENTS[writer]["dir"]
+                            "name": data.get("name", f"Kaplumbağa #{len(ROOMS[current_room])+1}"),
+                            "x": 400 + (len(ROOMS[current_room]) * 100) % 800,
+                            "y": 400 + (len(ROOMS[current_room]) * 60) % 600,
+                            "money": 50,
+                            "room": current_room
+                        }
+                        
+                        # Odadaki mevcut oyuncuları gönder
+                        init_msg = json.dumps({
+                            "type": "init",
+                            "id": player_id,
+                            "room": current_room,
+                            "players": list(ROOMS[current_room].values())
+                        })
+                        writer.write(encode_ws_frame(init_msg))
+                        await writer.drain()
+                        
+                        # Odaya yeni oyuncuyu duyur
+                        await broadcast_room(current_room, json.dumps({
+                            "type": "player_join",
+                            "player": ROOMS[current_room][writer]
                         }), exclude=writer)
+                        
+                    elif msg_type == "move":
+                        if current_room in ROOMS and writer in ROOMS[current_room]:
+                            p = ROOMS[current_room][writer]
+                            p["x"] = data.get("x", p["x"])
+                            p["y"] = data.get("y", p["y"])
+                            await broadcast_room(current_room, json.dumps({
+                                "type": "player_move",
+                                "id": player_id,
+                                "x": p["x"],
+                                "y": p["y"]
+                            }), exclude=writer)
+                            
                     elif msg_type == "stats_update":
-                        CLIENTS[writer]["money"] = data.get("money", 0)
-                        CLIENTS[writer]["level"] = data.get("level", 1)
-                        await broadcast(json.dumps({
-                            "type": "player_stats",
-                            "id": player_id,
-                            "money": CLIENTS[writer]["money"],
-                            "level": CLIENTS[writer]["level"]
+                        if current_room in ROOMS and writer in ROOMS[current_room]:
+                            p = ROOMS[current_room][writer]
+                            p["money"] = data.get("money", p["money"])
+                            await broadcast_room(current_room, json.dumps({
+                                "type": "player_stats",
+                                "id": player_id,
+                                "money": p["money"]
+                            }), exclude=writer)
+                            
+                    elif msg_type == "wall_built":
+                        # Sur inşa edildiğinde odaya yayınla
+                        await broadcast_room(current_room, json.dumps({
+                            "type": "wall_built",
+                            "owner": player_id,
+                            "wall": data.get("wall")
                         }), exclude=writer)
+                        
+                    elif msg_type == "wall_destroyed":
+                        # Topçu sur yıktığında yayınla
+                        await broadcast_room(current_room, json.dumps({
+                            "type": "wall_destroyed",
+                            "wallId": data.get("wallId")
+                        }))
                 except Exception:
                     pass
         else:
@@ -188,21 +220,21 @@ async def handle_client(reader, writer):
                 writer.write(res)
                 await writer.drain()
                 
-    except Exception as e:
+    except Exception:
         pass
     finally:
-        if writer in CLIENTS:
-            pid = CLIENTS[writer]["id"]
-            del CLIENTS[writer]
-            await broadcast(json.dumps({
+        if current_room in ROOMS and writer in ROOMS[current_room]:
+            pid = ROOMS[current_room][writer]["id"]
+            del ROOMS[current_room][writer]
+            asyncio.create_task(broadcast_room(current_room, json.dumps({
                 "type": "player_leave",
                 "id": pid
-            }))
+            })))
         writer.close()
 
 async def main():
     server = await asyncio.start_server(handle_client, '0.0.0.0', PORT)
-    print(f"🐢 Kaplumbağa Maden Sunucusu Başlatıldı: http://localhost:{PORT}")
+    print(f"🐢 KABUK KRALLIĞI Sunucusu Port {PORT} üzerinde aktif!")
     async with server:
         await server.serve_forever()
 
@@ -210,4 +242,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Sunucu durduruldu.")
+        pass

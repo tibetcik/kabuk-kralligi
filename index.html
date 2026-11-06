@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>KABUK KRALLIĞI 🐢👑</title>
     <style>
         * {
@@ -10,403 +10,579 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none;
         }
 
         body {
-            background: #142814;
+            background: #0f1f0f;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            width: 100vw;
             height: 100vh;
+            position: fixed;
         }
 
-        #game-wrapper {
-            position: relative;
-            box-shadow: 0 12px 48px rgba(0,0,0,0.7);
-            border-radius: 16px;
+        #canvas-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
-            border: 4px solid #3e2714;
-            background: #2e7d32;
         }
 
         canvas {
             display: block;
-            background: #43a047;
+            width: 100%;
+            height: 100%;
+            background: #2e7d32;
         }
 
-        /* Top Bar: Krallık Başlığı ve Ekonomi */
-        #top-bar {
+        /* ================= ANA MENÜ (LOBİ) ================= */
+        #main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(30, 58, 26, 0.96) 0%, rgba(10, 20, 10, 0.99) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .menu-title {
+            font-size: clamp(32px, 8vw, 56px);
+            font-weight: 900;
+            color: #facc15;
+            text-shadow: 0 4px 18px rgba(0,0,0,0.8), 0 0 30px rgba(234, 179, 8, 0.4);
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .menu-subtitle {
+            font-size: clamp(14px, 3.5vw, 18px);
+            color: #86efac;
+            margin-bottom: 28px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .menu-card {
+            background: rgba(22, 33, 20, 0.9);
+            border: 3px solid #854d0e;
+            padding: 24px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+        }
+
+        .menu-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #ca8a04;
+            background: #0f172a;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .menu-input:focus {
+            border-color: #facc15;
+            box-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
+        }
+
+        .menu-btn {
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+            color: #fff;
+            border: 2px solid #86efac;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.02);
+            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .menu-btn.alt {
+            background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+            border-color: #fef08a;
+        }
+
+        /* ================= ÜST HUD (GÖSTERGE BARI) ================= */
+        #top-hud {
             position: absolute;
             top: 10px;
-            left: 12px;
-            right: 12px;
+            left: 10px;
+            right: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             pointer-events: none;
+            z-index: 100;
+            gap: 8px;
         }
 
-        .hud-pill {
-            background: rgba(20, 32, 18, 0.92);
-            backdrop-filter: blur(8px);
-            padding: 7px 15px;
-            border-radius: 20px;
-            border: 2px solid #86efac;
-            color: #fff;
+        .hud-cluster {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
             pointer-events: auto;
         }
 
-        .gold-num {
-            color: #facc15;
-            font-size: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        /* Title Center */
-        #game-title {
-            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+        .hud-badge {
+            background: rgba(18, 28, 16, 0.92);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 2px solid #86efac;
             color: #fff;
-            padding: 6px 18px;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px #000;
-            border: 2px solid #fef08a;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        /* Savaş Durumu & Bildirim Bandı */
-        #war-banner {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(185, 28, 28, 0.95);
-            color: #fff;
-            padding: 8px 24px;
-            border-radius: 25px;
-            border: 2px solid #fecaca;
-            font-weight: 800;
-            font-size: 15px;
-            display: none;
-            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.7);
-            animation: pulse-red 1s infinite alternate;
-            z-index: 20;
-        }
-
-        @keyframes pulse-red {
-            from { transform: translateX(-50%) scale(0.98); }
-            to { transform: translateX(-50%) scale(1.03); }
-        }
-
-        /* Sol Panel: Hızlı Bilgi & İpuçları */
-        #info-card {
-            position: absolute;
-            top: 60px;
-            left: 12px;
-            background: rgba(15, 23, 42, 0.88);
-            color: #cbd5e1;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            border: 1px solid rgba(255,255,255,0.15);
-            max-width: 220px;
-            line-height: 1.4;
-            pointer-events: none;
-        }
-
-        #info-card b {
-            color: #fef08a;
-        }
-
-        /* Sağ Panel: Savaş Başlat & Ordu Durumu */
-        #war-control {
-            position: absolute;
-            top: 60px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .btn-war {
-            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
-            color: #fff;
-            border: 2px solid #f87171;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-weight: 900;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-            transition: all 0.15s ease;
+            font-size: 13px;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            cursor: pointer;
         }
 
-        .btn-war:hover:not(:disabled) {
-            transform: scale(1.04);
-            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+        .gold-val {
+            color: #facc15;
+            font-size: 17px;
+            text-shadow: 0 1px 3px #000;
         }
 
-        .btn-war:disabled {
-            background: #4b5563;
-            border-color: #6b7280;
-            cursor: not-allowed;
-            opacity: 0.6;
+        .room-code-tag {
+            color: #67e8f9;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px dashed #38bdf8;
         }
 
-        /* Alt Yönetim / Satın Alma & Geliştirme Paneli */
-        #bottom-dock {
+        /* Açılıp Kapanabilir Nasıl Oynanır Kartı */
+        #guide-modal {
             position: absolute;
-            bottom: 10px;
+            top: 60px;
             left: 10px;
-            right: 10px;
-            display: flex;
-            gap: 8px;
-            background: rgba(24, 18, 12, 0.95);
-            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.96);
+            color: #e2e8f0;
+            padding: 14px 18px;
             border-radius: 14px;
-            border: 2px solid #78350f;
+            border: 2px solid #ca8a04;
+            max-width: 320px;
+            font-size: 12px;
+            line-height: 1.5;
+            z-index: 120;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        #guide-modal b {
+            color: #facc15;
+        }
+
+        .btn-close-guide {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* ================= MOBİL & TABLET DOKUNMATİK KONTROLLER ================= */
+        #touch-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 90;
+        }
+
+        /* Sanal Joystick */
+        #joystick-zone {
+            position: absolute;
+            bottom: 110px;
+            left: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 3px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            pointer-events: auto;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #joystick-knob {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #facc15 0%, #ca8a04 100%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: none;
+            transform: translate(0px, 0px);
+        }
+
+        /* Sağ Taraf Dokunmatik Aksiyon Butonları */
+        #action-buttons {
+            position: absolute;
+            bottom: 110px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .btn-action-touch {
+            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%);
+            color: #fff;
+            border: 2px solid #fdba74;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            font-weight: 900;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            cursor: pointer;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .btn-action-touch:active {
+            transform: scale(0.92);
+        }
+
+        .btn-action-touch.mine {
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+            border-color: #7dd3fc;
+        }
+
+        .btn-action-touch.wall {
+            background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+            border-color: #cbd5e1;
+        }
+
+        /* ================= ALT DOCK (YÖNETİM & SATIN ALMA) ================= */
+        #bottom-panel {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            background: rgba(20, 15, 10, 0.95);
+            border: 2px solid #854d0e;
+            border-radius: 14px;
+            padding: 6px 10px;
+            display: flex;
+            gap: 6px;
             overflow-x: auto;
             align-items: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-            z-index: 15;
+            z-index: 110;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.7);
         }
 
-        .dock-group {
-            display: flex;
-            gap: 6px;
-            border-right: 2px solid rgba(255,255,255,0.1);
-            padding-right: 8px;
-            flex-shrink: 0;
-        }
-
-        .dock-btn {
-            background: linear-gradient(180deg, #15803d 0%, #166534 100%);
-            color: #ffffff;
+        .dock-card {
+            background: linear-gradient(180deg, #15803d 0%, #14532d 100%);
             border: 1.5px solid #86efac;
-            padding: 6px 10px;
-            border-radius: 9px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
-            min-width: 95px;
-            transition: transform 0.1s ease;
+            min-width: 96px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.1s;
         }
 
-        .dock-btn:hover:not(:disabled) {
+        .dock-card:hover:not(:disabled) {
             transform: translateY(-2px);
-            background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
             border-color: #fef08a;
         }
 
-        .dock-btn:disabled {
-            background: #374151;
-            border-color: #4b5563;
-            color: #9ca3af;
+        .dock-card:disabled {
+            background: #334155;
+            border-color: #475569;
+            color: #94a3b8;
             cursor: not-allowed;
             opacity: 0.55;
         }
 
-        .dock-cost {
-            color: #fde047;
+        .card-title {
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .card-sub {
+            font-size: 9px;
+            color: #a7f3d0;
+            margin: 1px 0;
+        }
+
+        .card-cost {
             font-size: 10px;
+            color: #fef08a;
             background: rgba(0,0,0,0.4);
             padding: 1px 5px;
             border-radius: 4px;
+            font-weight: bold;
         }
 
-        .dock-badge {
-            font-size: 9px;
-            color: #a7f3d0;
-        }
-
-        /* Modal / Tebrik & Ganimet Ekranı */
-        #game-modal {
+        /* Savaş Bildirim Bandı */
+        #war-banner {
             position: absolute;
-            top: 50%;
+            top: 55px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(15, 23, 42, 0.98);
-            border: 3px solid #facc15;
-            padding: 22px 30px;
-            border-radius: 18px;
+            transform: translateX(-50%);
+            background: rgba(185, 28, 28, 0.95);
             color: #fff;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.85);
+            padding: 6px 20px;
+            border-radius: 20px;
+            border: 2px solid #fecaca;
+            font-weight: 800;
+            font-size: 13px;
             display: none;
             z-index: 100;
-            max-width: 440px;
+            animation: pulse-red 1s infinite alternate;
         }
 
-        #game-modal h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #facc15;
-        }
-
-        #game-modal p {
-            font-size: 14px;
-            color: #e2e8f0;
-            line-height: 1.5;
-            margin-bottom: 18px;
-        }
-
-        .modal-btn {
-            background: #eab308;
-            color: #000;
-            border: none;
-            padding: 8px 22px;
-            border-radius: 10px;
-            font-weight: 900;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .modal-btn:hover {
-            background: #fde047;
+        @keyframes pulse-red {
+            from { transform: translateX(-50%) scale(0.97); }
+            to { transform: translateX(-50%) scale(1.03); }
         }
     </style>
 </head>
 <body>
 
-<div id="game-wrapper">
-    <canvas id="gameCanvas" width="1020" height="640"></canvas>
+<!-- ANA MENÜ / ODA SEÇİMİ -->
+<div id="main-menu">
+    <div class="menu-title">👑 KABUK KRALLIĞI</div>
+    <div class="menu-subtitle">Madencilerini Yönet, Surunu Kur, Krallığını Koru! 🐢⚔️</div>
 
-    <!-- Top Bar -->
-    <div id="top-bar">
-        <div class="hud-pill">
-            <span>💰 Altın:</span>
-            <span id="ui-money" class="gold-num">50</span>
+    <div class="menu-card">
+        <input type="text" id="inp-nickname" class="menu-input" placeholder="KAPLUMBAĞA ADINIZ" maxlength="15" value="Lider">
+        <input type="text" id="inp-room" class="menu-input" placeholder="ODA KODU (ÖRN: KRAL-1)" maxlength="12" value="GENEL">
+        
+        <button id="btn-play-now" class="menu-btn">
+            <span>🎮 OYNA & ODAYA GİR</span>
+        </button>
+
+        <button id="btn-random-room" class="menu-btn alt">
+            <span>🎲 RASTGELE YENİ ODA KUR</span>
+        </button>
+    </div>
+</div>
+
+<!-- OYUN ALANI -->
+<div id="canvas-wrapper">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ÜST HUD GÖSTERGELERİ -->
+    <div id="top-hud">
+        <div class="hud-cluster">
+            <div class="hud-badge">
+                <span>💰</span>
+                <span id="ui-gold" class="gold-val">50</span>
+            </div>
+            <div id="btn-room-badge" class="hud-badge" title="Tıkla ve Oda Kodunu Değiştir">
+                <span>🔑 Oda:</span>
+                <span id="ui-room" class="room-code-tag">GENEL</span>
+            </div>
         </div>
 
-        <div id="game-title">👑 KABUK KRALLIĞI</div>
-
-        <div class="hud-pill">
-            <span>🛡️ Ordu Gücü:</span>
-            <span id="ui-army-count" style="color: #67e8f9;">0 Asker</span>
+        <div class="hud-cluster">
+            <div class="hud-badge">
+                <span>🛡️</span>
+                <span id="ui-army" style="color: #67e8f9;">0 Asker</span>
+            </div>
+            <div id="btn-toggle-guide" class="hud-badge" style="border-color: #facc15;">
+                <span>ℹ️ Nasıl Oynanır?</span>
+            </div>
         </div>
     </div>
 
     <!-- Savaş Bildirim Bandı -->
-    <div id="war-banner">⚔️ SAVAŞ DEVAM EDİYOR! TÜM ORDU SALDIRIDA! ⚔️</div>
+    <div id="war-banner">⚔️ SAVAŞ DEVAM EDİYOR! TÜM ORDU HÜCUMDA! ⚔️</div>
 
-    <!-- Sol İpucu Kutusu -->
-    <div id="info-card">
+    <!-- Açılır Kapanır Nasıl Oynanır Rehberi -->
+    <div id="guide-modal">
+        <button id="btn-close-guide" class="btn-close-guide">✕</button>
         <b>💡 Nasıl Oynanır?</b><br>
-        1. Madenciler depoya maden taşır.<br>
-        2. <b>Lider (Sen)</b> depodan madeni alıp <b>SHOP</b>'a götürerek altın kazanır!<br>
-        3. Altınla dövüşçü kaplumbağalar al ve geliştir.<br>
-        4. Rakip Krallığa savaş açıp <b>1000 Altın</b> veya <b>3 Asker</b> ganimet kazan!
+        1. <b>Sen (Lider):</b> Hareket et (WASD veya Joystick). Madene yaklaşıp <b>[⛏️ KAZ]</b> butonuna basarak bizzat maden çıkarabilirsin!<br>
+        2. <b>Madenciler:</b> Her madencinin kendine ait maden kayası vardır, depoya maden taşır.<br>
+        3. <b>Taşıyıcı Bot (150 Altın):</b> Depodan alıp Shop'a senin yerine otomatik taşır ve satar!<br>
+        4. <b>Sur (200 Altın):</b> Sadece sen ve askerlerin geçebilir. Düşmanlar geçemez!<br>
+        5. <b>Topçu (Osmanlı Topu):</b> Canı 13. Sadece sur yıkabilir! Topçu dışında sur yıkılamaz.<br>
+        6. <b>Yağmacılar:</b> Her 5 dakikada ormandan sinsice çıkarlar, dikkat et!
     </div>
 
-    <!-- Sağ Savaş Kontrolü -->
-    <div id="war-control">
-        <button id="btn-start-war" class="btn-war">
-            <span>⚔️ SAVAŞ BAŞLAT!</span>
+    <!-- MOBİL & TABLET DOKUNMATİK KONTROLLER -->
+    <div id="touch-controls">
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
+        </div>
+
+        <div id="action-buttons">
+            <button id="btn-touch-mine" class="btn-action-touch mine">
+                <span style="font-size:18px;">⛏️</span>
+                <span>KAZ</span>
+            </button>
+            <button id="btn-touch-wall" class="btn-action-touch wall">
+                <span style="font-size:18px;">🧱</span>
+                <span>SUR</span>
+            </button>
+            <button id="btn-touch-war" class="btn-action-touch">
+                <span style="font-size:18px;">⚔️</span>
+                <span>SAVAŞ</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ALT YÖNETİM & SATIN ALMA DOCK -->
+    <div id="bottom-panel">
+        <button id="btn-up-mine" class="dock-card">
+            <span class="card-title">⛏️ Maden Yükselt</span>
+            <span id="sub-mine" class="card-sub">Kömür (Lv.1)</span>
+            <span id="cost-mine" class="card-cost">90 Altın</span>
         </button>
-        <div class="hud-pill" style="font-size: 12px; padding: 4px 10px;">
-            <span id="txt-online-status">🌐 Çevrim İçi: Bağlanıyor...</span>
-        </div>
-    </div>
 
-    <!-- Alt Yönetim ve Satın Alma Menüsü -->
-    <div id="bottom-dock">
-        <!-- Maden ve Madenci Geliştirme -->
-        <div class="dock-group">
-            <button id="btn-up-mine" class="dock-btn">
-                <span>⛏️ Maden Geliştir</span>
-                <span id="badge-mine-tier" class="dock-badge">Kömür (Lv.1)</span>
-                <span id="cost-mine" class="dock-cost">50 Altın</span>
-            </button>
-            <button id="btn-buy-miner" class="dock-btn">
-                <span>🐢 +Madenci Al</span>
-                <span id="badge-miner-count" class="dock-badge">3 Madenci</span>
-                <span id="cost-miner" class="dock-cost">30 Altın</span>
-            </button>
-            <button id="btn-up-miner-pick" class="dock-btn">
-                <span>🪓 Kazmaları Yükselt</span>
-                <span id="badge-pick-tier" class="dock-badge">Tahta (Lv.1)</span>
-                <span id="cost-miner-pick" class="dock-cost">25 Altın</span>
-            </button>
-        </div>
+        <button id="btn-buy-miner" class="dock-card">
+            <span class="card-title">🐢 +Madenci Al</span>
+            <span id="sub-miner" class="card-sub">3 Madenci</span>
+            <span id="cost-miner" class="card-cost">45 Altın</span>
+        </button>
 
-        <!-- Asker Alımı (Madenci Dışındaki Dövüşçü Kaplumbağalar) -->
-        <div class="dock-group">
-            <button id="btn-buy-guard" class="dock-btn">
-                <span>🛡️ Nöbetçi Al</span>
-                <span id="badge-guard-info" class="dock-badge">Can: 11 | Sopa</span>
-                <span id="cost-guard" class="dock-cost">25 Altın</span>
-            </button>
-            <button id="btn-buy-hunter" class="dock-btn">
-                <span>🏹 Avcı Al</span>
-                <span id="badge-hunter-info" class="dock-badge">Can: 13 | Yay</span>
-                <span id="cost-hunter" class="dock-cost">40 Altın</span>
-            </button>
-            <button id="btn-buy-spear" class="dock-btn">
-                <span>🔱 Mızraklı Al</span>
-                <span id="badge-spear-info" class="dock-badge">Yakın/Fırlatma</span>
-                <span id="cost-spear" class="dock-cost">45 Altın</span>
-            </button>
-            <button id="btn-buy-horse" class="dock-btn">
-                <span>🐎 Atlı Al</span>
-                <span id="badge-horse-info" class="dock-badge">Hızlı | 10 Vurur</span>
-                <span id="cost-horse" class="dock-cost">65 Altın</span>
-            </button>
-        </div>
+        <button id="btn-up-pick" class="dock-card">
+            <span class="card-title">🪓 Kazma Yükselt</span>
+            <span id="sub-pick" class="card-sub">Tahta (Lv.1)</span>
+            <span id="cost-pick" class="card-cost">50 Altın</span>
+        </button>
 
-        <!-- Üst Kademe Savaşçılar -->
-        <div class="dock-group" style="border-right: none;">
-            <button id="btn-buy-soldier" class="dock-btn">
-                <span>🪖 Asker Al</span>
-                <span id="badge-soldier-info" class="dock-badge">Tüfekli | 13 Vurur</span>
-                <span id="cost-soldier" class="dock-cost">75 Altın</span>
-            </button>
-            <button id="btn-buy-mage" class="dock-btn">
-                <span>🧙‍♂️ Büyücü Al</span>
-                <span id="badge-mage-info" class="dock-badge">Ateş Topu+İskelet</span>
-                <span id="cost-mage" class="dock-cost">90 Altın</span>
-            </button>
-            <button id="btn-buy-giant" class="dock-btn">
-                <span>🦍 Dev Al</span>
-                <span id="badge-giant-info" class="dock-badge">Can: 30 | Hasar: 23</span>
-                <span id="cost-giant" class="dock-cost">120 Altın</span>
-            </button>
-        </div>
-    </div>
+        <button id="btn-buy-carrier" class="dock-card" style="border-color:#38bdf8;">
+            <span class="card-title">📦 Taşıyıcı Bot</span>
+            <span class="card-sub">Otomatik Satıcı</span>
+            <span class="card-cost">150 Altın</span>
+        </button>
 
-    <!-- Zafer / Yenilgi Modalı -->
-    <div id="game-modal">
-        <h2 id="modal-title">⚔️ SAVAŞ SONUCU</h2>
-        <p id="modal-desc">Ganimet detayları...</p>
-        <button class="modal-btn" onclick="closeModal()">Tamam</button>
+        <button id="btn-build-wall" class="dock-card" style="border-color:#cbd5e1;">
+            <span class="card-title">🧱 Sur İnşa Et</span>
+            <span class="card-sub">Geçilmez Taş</span>
+            <span class="card-cost">200 Altın</span>
+        </button>
+
+        <button id="btn-buy-cannon" class="dock-card" style="border-color:#f59e0b;">
+            <span class="card-title">💣 Topçu (Osmanlı)</span>
+            <span class="card-sub">Sur Yıkıcı | Can 13</span>
+            <span class="card-cost">190 Altın</span>
+        </button>
+
+        <button id="btn-buy-guard" class="dock-card">
+            <span class="card-title">🛡️ Nöbetçi</span>
+            <span class="card-sub">Can: 11 | Sopa</span>
+            <span class="card-cost">40 Altın</span>
+        </button>
+
+        <button id="btn-buy-hunter" class="dock-card">
+            <span class="card-title">🏹 Avcı</span>
+            <span class="card-sub">Can: 13 | Yay</span>
+            <span class="card-cost">60 Altın</span>
+        </button>
+
+        <button id="btn-buy-spear" class="dock-card">
+            <span class="card-title">🔱 Mızraklı</span>
+            <span class="card-sub">Yakın/Fırlatma</span>
+            <span class="card-cost">70 Altın</span>
+        </button>
+
+        <button id="btn-buy-horse" class="dock-card">
+            <span class="card-title">🐎 Atlı</span>
+            <span class="card-sub">Hızlı Hücum</span>
+            <span class="card-cost">110 Altın</span>
+        </button>
+
+        <button id="btn-buy-soldier" class="dock-card">
+            <span class="card-title">🪖 Asker</span>
+            <span class="card-sub">Tüfekli</span>
+            <span class="card-cost">130 Altın</span>
+        </button>
+
+        <button id="btn-buy-mage" class="dock-card">
+            <span class="card-title">🧙‍♂️ Büyücü</span>
+            <span class="card-sub">Büyü + İskelet</span>
+            <span class="card-cost">160 Altın</span>
+        </button>
+
+        <button id="btn-buy-giant" class="dock-card">
+            <span class="card-title">🦍 Dev</span>
+            <span class="card-sub">Can: 30 | Hasar: 23</span>
+            <span class="card-cost">220 Altın</span>
+        </button>
     </div>
 </div>
 
 <script>
 /* ==========================================================================
-   SES SİSTEMİ (Web Audio API)
+   GENİŞ HARİTA & OYUN DÜNYASI SABİTLERİ (2400 x 1800 Piksel)
    ========================================================================== */
+const WORLD_W = 2400;
+const WORLD_H = 1800;
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Kamera (Karakteri Merkezde Takip Eder)
+const camera = { x: 0, y: 0 };
+
+// Ses Efektleri
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
-
 function playSound(type) {
     try {
         if (!audioCtx) audioCtx = new AudioCtx();
@@ -418,147 +594,148 @@ function playSound(type) {
         gain.connect(audioCtx.destination);
 
         if (type === 'coin') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, now);
-            osc.frequency.setValueAtTime(1320, now + 0.08);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-            osc.start(now);
-            osc.stop(now + 0.3);
-        } else if (type === 'hit') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+            osc.frequency.setValueAtTime(900, now);
+            osc.frequency.setValueAtTime(1400, now + 0.08);
             gain.gain.setValueAtTime(0.18, now);
-            gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc.start(now);
+            osc.stop(now + 0.28);
+        } else if (type === 'mine') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(60, now + 0.12);
+            gain.gain.setValueAtTime(0.15, now);
             osc.start(now);
             osc.stop(now + 0.12);
-        } else if (type === 'magic') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.linearRampToValueAtTime(900, now + 0.2);
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        } else if (type === 'cannon') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(110, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.35);
+            gain.gain.setValueAtTime(0.3, now);
             osc.start(now);
-            osc.stop(now + 0.25);
-        } else if (type === 'victory') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, now);
-            osc.frequency.setValueAtTime(659.25, now + 0.12);
-            osc.frequency.setValueAtTime(783.99, now + 0.24);
-            osc.frequency.setValueAtTime(1046.50, now + 0.36);
-            gain.gain.setValueAtTime(0.25, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-            osc.start(now);
-            osc.stop(now + 0.6);
+            osc.stop(now + 0.35);
         }
     } catch(e) {}
 }
 
 /* ==========================================================================
-   OYUN SABİTLERİ VE VERİ TANIMLARI
+   OYUNCU, BİNALAR VE EKONOMİ
    ========================================================================== */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
 let money = 50;
+let roomCode = "GENEL";
+let myPlayerName = "Lider";
 
-// Maden Kademeleri (Asla Bitmez)
+// Maden ve Kazma Kademeleri
 const MINE_TIERS = [
-    { name: "Kömür", tier: 1, color: "#1e293b", value: 6, upgradeCost: 50 },
-    { name: "Demir", tier: 2, color: "#94a3b8", value: 14, upgradeCost: 110 },
-    { name: "Çelik", tier: 3, color: "#38bdf8", value: 28, upgradeCost: 220 },
-    { name: "Altın", tier: 4, color: "#facc15", value: 55, upgradeCost: 450 },
-    { name: "Elmas", tier: 5, color: "#67e8f9", value: 110, upgradeCost: 0 }
+    { name: "Kömür", tier: 1, color: "#1e293b", value: 6, upgradeCost: 90 },
+    { name: "Demir", tier: 2, color: "#94a3b8", value: 16, upgradeCost: 180 },
+    { name: "Çelik", tier: 3, color: "#38bdf8", value: 34, upgradeCost: 350 },
+    { name: "Altın", tier: 4, color: "#facc15", value: 70, upgradeCost: 700 },
+    { name: "Elmas", tier: 5, color: "#67e8f9", value: 150, upgradeCost: 0 }
 ];
-let currentMineTierIndex = 0; // Başlangıç: Kömür (Lv.1)
+let currentMineTierIndex = 0;
 
-// Kazma Kademeleri (Tahta, Taş, Demir, Çelik, Elmas)
-const PICKAXE_TIERS = [
-    { name: "Tahta", tier: 1, speedMult: 1.0, color: "#92400e", upgradeCost: 25 },
-    { name: "Taş", tier: 2, speedMult: 1.3, color: "#64748b", upgradeCost: 50 },
-    { name: "Demir", tier: 3, speedMult: 1.7, color: "#cbd5e1", upgradeCost: 90 },
-    { name: "Çelik", tier: 4, speedMult: 2.2, color: "#38bdf8", upgradeCost: 160 },
-    { name: "Elmas", tier: 5, speedMult: 3.0, color: "#67e8f9", upgradeCost: 0 }
+const PICK_TIERS = [
+    { name: "Tahta", tier: 1, speedMult: 1.0, color: "#92400e", upgradeCost: 50 },
+    { name: "Taş", tier: 2, speedMult: 1.35, color: "#64748b", upgradeCost: 100 },
+    { name: "Demir", tier: 3, speedMult: 1.8, color: "#cbd5e1", upgradeCost: 180 },
+    { name: "Çelik", tier: 4, speedMult: 2.3, color: "#38bdf8", upgradeCost: 300 },
+    { name: "Elmas", tier: 5, speedMult: 3.2, color: "#67e8f9", upgradeCost: 0 }
 ];
-let currentPickTierIndex = 0; // Başlangıç: Tahta (Lv.1)
+let currentPickTierIndex = 0;
 
-// Depodaki Maden Sayısı & Oyuncunun Sırtındaki Maden
+// Binalar ve Araziler
+const baseCamp = { x: 800, y: 900 };
+const zoneStorage = { x: 800, y: 880, w: 100, h: 80 };
+const zoneShop = { x: 1250, y: 880, w: 110, h: 85 };     // Shop biraz daha uzakta
+const zoneEnemyCamp = { x: 1950, y: 900, w: 160, h: 160 };
+
 let storageOreCount = 0;
 let playerCarriedOre = 0;
-const PLAYER_MAX_CARRY = 12;
+const PLAYER_MAX_CARRY = 15;
 
-// Binalar / Alanlar
-const zoneMine = { x: 120, y: 150, w: 120, h: 90 };      // Maden Mağarası
-const zoneStorage = { x: 340, y: 150, w: 90, h: 80 };     // Depo
-const zoneShop = { x: 340, y: 350, w: 90, h: 80 };        // Shop (Pazar)
-
-// Rakip Krallık Alanı (Savaş Hedefi)
-const zoneEnemyCamp = { x: 880, y: 250, w: 140, h: 140 };
-
-// Ana Karakter (Lider Kaplumbağa: Can 30, saldıramaz)
+// Ana Karakter (Lider)
 const player = {
-    x: 340,
-    y: 250,
-    speed: 4.0,
+    x: 800,
+    y: 980,
+    speed: 4.2,
     moving: false,
     animTick: 0,
     maxHp: 30,
     hp: 30
 };
 
-// Çevrim İçi Çok Oyunculu
-let remotePlayers = {};
-let myId = null;
-let socket = null;
-let lastNetSend = 0;
-
-// Çatışma ve Mermiler
-let projectiles = [];
-let popups = [];
-let warActive = false;
-let warTimer = 0;
-
-/* ==========================================================================
-   BİRİMLER (TÜMÜ İKİ AYAK ÜZERİNDE KAPLUMBAĞA BOTLAR)
-   ========================================================================== */
-let workers = [];     // Madenci Kaplumbağalar (Can: 10, Savaşa katılmaz)
-let soldiers = [];    // Oyuncunun Ordusu (Nöbetçi, Avcı, Mızraklı, Atlı, Asker, Büyücü, Dev)
-let enemySoldiers = []; // Rakip Krallık Savunması
-
-// Başlangıçta 3 Madenci Kaplumbağa
-for (let i = 0; i < 3; i++) {
-    workers.push(createMiner(i + 1));
+// Maden Kayaları (Her Madenciye Ayrı Kömür Damarı!)
+let mineNodes = [];
+function addMineNode(id) {
+    const angle = (id * 1.1) % (Math.PI * 2);
+    const dist = 140 + (id * 25) % 180;
+    mineNodes.push({
+        id: id,
+        x: zoneStorage.x - 300 + Math.cos(angle) * dist,
+        y: zoneStorage.y + Math.sin(angle) * dist,
+        w: 60,
+        h: 50
+    });
 }
+// Başlangıçtaki 3 maden kayası
+for (let i = 0; i < 3; i++) addMineNode(i + 1);
+
+// Surlar (Duvarlar)
+let walls = []; // { id, x, y, w, h, owner, hp: 100 }
+
+// Birimler
+let workers = [];
+let carriers = []; // Taşıyıcı Botlar
+let soldiers = []; // Oyuncunun Ordusu (Topçu dahil)
+let enemySoldiers = [];
+let raiders = []; // Yağmacılar
 
 function createMiner(id) {
+    if (id > mineNodes.length) addMineNode(id);
+    const assignedNode = mineNodes[id - 1] || mineNodes[0];
     return {
         id: id,
         type: 'miner',
         name: `Madenci #${id}`,
-        x: zoneStorage.x + (Math.random() * 30 - 15),
-        y: zoneStorage.y + (Math.random() * 30 - 15),
+        x: zoneStorage.x + (Math.random() * 40 - 20),
+        y: zoneStorage.y + (Math.random() * 40 - 20),
+        targetNode: assignedNode,
         maxHp: 10,
         hp: 10,
-        state: 'to_mine', // to_mine, mining, to_storage
+        state: 'to_mine',
         miningTimer: 0,
         animTick: Math.random() * 10,
         carrying: 0
     };
 }
+for (let i = 0; i < 3; i++) workers.push(createMiner(i + 1));
 
+// Taşıyıcı Bot (150 Altın)
+function createCarrier(id) {
+    return {
+        id: id,
+        type: 'carrier',
+        name: `Taşıyıcı #${id}`,
+        x: zoneStorage.x,
+        y: zoneStorage.y + 30,
+        state: 'to_storage', // to_storage, to_shop
+        carrying: 0,
+        speed: 2.8,
+        animTick: Math.random() * 10
+    };
+}
+
+// Savaşçı & Topçu Oluşturma
 function createFighter(type, isEnemy = false) {
-    const startX = isEnemy ? (zoneEnemyCamp.x - 30 + Math.random()*50) : (zoneShop.x + 80 + Math.random()*40);
-    const startY = isEnemy ? (zoneEnemyCamp.y + Math.random()*100 - 50) : (zoneShop.y + Math.random()*120 - 60);
+    const startX = isEnemy ? (zoneEnemyCamp.x - 40 + Math.random()*80) : (zoneStorage.x + 80 + Math.random()*60);
+    const startY = isEnemy ? (zoneEnemyCamp.y + Math.random()*120 - 60) : (zoneStorage.y + Math.random()*120 - 60);
 
     const f = {
         type: type,
         isEnemy: isEnemy,
         x: startX,
         y: startY,
-        baseX: startX,
-        baseY: startY,
-        target: null,
         animTick: Math.random() * 10,
         level: 1,
         attackCooldown: 0,
@@ -566,65 +743,36 @@ function createFighter(type, isEnemy = false) {
     };
 
     if (type === 'guard') {
-        f.name = "Nöbetçi";
-        f.maxHp = 11;
-        f.speed = 2.4;
-        f.range = 28;
-        f.damage = 4;
+        f.name = "Nöbetçi"; f.maxHp = 11; f.speed = 2.4; f.range = 30; f.damage = 4;
     } else if (type === 'hunter') {
-        f.name = "Avcı";
-        f.maxHp = 13;
-        f.speed = 2.1;
-        f.range = 190;
-        f.damage = 3;
+        f.name = "Avcı"; f.maxHp = 13; f.speed = 2.2; f.range = 220; f.damage = 3;
     } else if (type === 'spear') {
-        f.name = "Mızraklı";
-        f.maxHp = 14;
-        f.speed = 2.3;
-        f.level = 1;
-        f.range = 35;
-        f.damage = 5;
+        f.name = "Mızraklı"; f.maxHp = 14; f.speed = 2.3; f.range = 40; f.damage = 5;
     } else if (type === 'horse') {
-        f.name = "Atlı";
-        f.maxHp = 15;
-        f.speed = 4.6;
-        f.range = 24;
-        f.damage = 10;
+        f.name = "Atlı"; f.maxHp = 15; f.speed = 4.8; f.range = 26; f.damage = 10;
     } else if (type === 'soldier') {
-        f.name = "Asker";
-        f.maxHp = 20;
-        f.speed = 2.2;
-        f.level = 1;
-        f.range = 30;
-        f.damage = 10;
+        f.name = "Asker"; f.maxHp = 20; f.speed = 2.3; f.range = 35; f.damage = 10;
     } else if (type === 'mage') {
-        f.name = "Büyücü";
-        f.maxHp = 23;
-        f.speed = 1.9;
-        f.level = 1;
-        f.range = 210;
-        f.damage = 15;
+        f.name = "Büyücü"; f.maxHp = 23; f.speed = 2.0; f.range = 240; f.damage = 15;
     } else if (type === 'giant') {
-        f.name = "Dev";
-        f.maxHp = 30;
-        f.speed = 1.5;
-        f.range = 35;
-        f.damage = 23;
+        f.name = "Dev"; f.maxHp = 30; f.speed = 1.6; f.range = 38; f.damage = 23;
+    } else if (type === 'cannon') {
+        // TOPÇU (OSMANLI TOPU): Can 13, Lv.1, Sadece Sur Yıkar! Askerlere saldıramaz.
+        f.name = "Osmanlı Topçusu";
+        f.maxHp = 13;
+        f.speed = 1.8;
+        f.range = 260;
+        f.damage = 35; // Sura 35 hasar
     } else if (type === 'skeleton') {
-        f.name = "İskelet";
-        f.maxHp = 5;
-        f.speed = 2.5;
-        f.range = 22;
-        f.damage = 3;
+        f.name = "İskelet"; f.maxHp = 5; f.speed = 2.6; f.range = 25; f.damage = 3;
     }
-
     f.hp = f.maxHp;
     return f;
 }
 
+// Rakip Krallık Savunması
 function spawnEnemyGarrison() {
     enemySoldiers = [
-        createFighter('guard', true),
         createFighter('guard', true),
         createFighter('hunter', true),
         createFighter('spear', true),
@@ -636,19 +784,163 @@ function spawnEnemyGarrison() {
 }
 spawnEnemyGarrison();
 
-/* ==========================================================================
-   KLAVYE VE KONTROLLER
-   ========================================================================== */
-const keys = {};
-window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
-window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-
-function addPopup(x, y, text, color = '#facc15') {
-    popups.push({ x: x, y: y, text: text, color: color, life: 1.0 });
+// Sınır Ağaçları (Haritanın Etrafındaki Geçilmez Orman)
+const trees = [];
+for (let x = 0; x <= WORLD_W; x += 65) {
+    trees.push({ x: x, y: 35 });
+    trees.push({ x: x, y: WORLD_H - 35 });
+}
+for (let y = 0; y <= WORLD_H; y += 65) {
+    trees.push({ x: 35, y: y });
+    trees.push({ x: WORLD_W - 35, y: y });
 }
 
 /* ==========================================================================
-   ÇİZİMLER (2 AYAK ÜSTÜNDE ÇİZGİ FİLM KAPLUMBAĞALAR & ALANLAR)
+   SANAL JOYSTICK & DOKUNMATİK GİRİŞLER
+   ========================================================================== */
+let joystickActive = false;
+let joyDx = 0;
+let joyDy = 0;
+const joyZone = document.getElementById('joystick-zone');
+const joyKnob = document.getElementById('joystick-knob');
+
+function handleTouchMove(e) {
+    if (!joystickActive) return;
+    const touch = e.touches[0];
+    const rect = joyZone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    let deltaX = touch.clientX - centerX;
+    let deltaY = touch.clientY - centerY;
+    const dist = Math.hypot(deltaX, deltaY);
+    const maxRadius = rect.width / 2;
+
+    if (dist > maxRadius) {
+        deltaX = (deltaX / dist) * maxRadius;
+        deltaY = (deltaY / dist) * maxRadius;
+    }
+
+    joyKnob.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    joyDx = deltaX / maxRadius;
+    joyDy = deltaY / maxRadius;
+}
+
+joyZone.addEventListener('touchstart', e => {
+    joystickActive = true;
+    handleTouchMove(e);
+});
+window.addEventListener('touchmove', handleTouchMove, { passive: false });
+window.addEventListener('touchend', () => {
+    joystickActive = false;
+    joyKnob.style.transform = 'translate(0px, 0px)';
+    joyDx = 0;
+    joyDy = 0;
+});
+
+// Klavye
+const keys = {};
+window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.code === 'Space') doPlayerMine();
+});
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+// Dokunmatik Aksiyon Butonları
+document.getElementById('btn-touch-mine').addEventListener('click', doPlayerMine);
+document.getElementById('btn-touch-wall').addEventListener('click', doBuildWall);
+document.getElementById('btn-touch-war').addEventListener('click', toggleWar);
+
+// Popuplar & Mermiler
+let popups = [];
+let projectiles = [];
+let warActive = false;
+
+function addPopup(worldX, worldY, text, color = '#facc15') {
+    popups.push({ x: worldX, y: worldY, text: text, color: color, life: 1.0 });
+}
+
+/* ==========================================================================
+   ANA KARAKTER MADEN KAZMA & SUR İNŞA ETME
+   ========================================================================== */
+function doPlayerMine() {
+    // Yakındaki maden kayasını bul
+    let nearNode = null;
+    mineNodes.forEach(node => {
+        const d = Math.hypot(player.x - node.x, player.y - node.y);
+        if (d < 75) nearNode = node;
+    });
+
+    if (nearNode) {
+        if (playerCarriedOre < PLAYER_MAX_CARRY) {
+            playerCarriedOre++;
+            playSound('mine');
+            addPopup(player.x, player.y - 20, `+1 ${MINE_TIERS[currentMineTierIndex].name} Kazdın! ⛏️`, '#38bdf8');
+        } else {
+            addPopup(player.x, player.y - 20, `Çantan Dolu! Depoya veya Shop'a git 🎒`, '#f87171');
+        }
+    } else {
+        addPopup(player.x, player.y - 20, `Kazmak için bir maden kayasına yaklaş!`, '#e2e8f0');
+    }
+}
+
+function doBuildWall() {
+    if (money >= 200) {
+        money -= 200;
+        const newWall = {
+            id: `wall_${Date.now()}`,
+            x: Math.round(player.x),
+            y: Math.round(player.y - 35),
+            w: 80,
+            h: 30,
+            owner: 'me',
+            hp: 120,
+            maxHp: 120
+        };
+        walls.push(newWall);
+        playSound('coin');
+        addPopup(newWall.x, newWall.y, `Sağlam Sur Kuruldu! 🧱`, '#cbd5e1');
+        updateUI();
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'wall_built', wall: newWall }));
+        }
+    } else {
+        addPopup(player.x, player.y - 20, `Sur için 200 Altın gerekir!`, '#ef4444');
+    }
+}
+
+/* ==========================================================================
+   YAĞMACI SİSTEMİ (HER 5 DAKİKADA BİR DOĞAN HAYDUT KAPLUMBAĞA)
+   ========================================================================== */
+function spawnRaider() {
+    // Haritanın rastgele bir orman kenarından çıkar
+    const side = Math.floor(Math.random() * 4);
+    let rx = 100, ry = 100;
+    if (side === 0) { rx = 150 + Math.random() * (WORLD_W - 300); ry = 100; }
+    else if (side === 1) { rx = 150 + Math.random() * (WORLD_W - 300); ry = WORLD_H - 120; }
+    else if (side === 2) { rx = 100; ry = 150 + Math.random() * (WORLD_H - 300); }
+    else { rx = WORLD_W - 120; ry = 150 + Math.random() * (WORLD_H - 300); }
+
+    raiders.push({
+        id: `raider_${Date.now()}`,
+        name: "Yağmacı",
+        x: rx,
+        y: ry,
+        hp: 10,
+        maxHp: 10,
+        damage: 3,
+        speed: 2.1,
+        animTick: 0,
+        cooldown: 0
+    });
+    addPopup(rx, ry, `⚠️ YAĞMACI ORMANDAN ÇIKTI!`, '#ef4444');
+}
+// 1. dakikada ve her 5 dakikada (300 sn) bir yağmacı doğar
+setTimeout(spawnRaider, 60000);
+setInterval(spawnRaider, 300000);
+
+/* ==========================================================================
+   ÇİZİMLER (KAPLUMBAĞALAR, SURLAR, TOPÇU VE HARİTA)
    ========================================================================== */
 function drawTurtle(ctx, x, y, opt = {}) {
     const isMoving = opt.isMoving || false;
@@ -664,7 +956,7 @@ function drawTurtle(ctx, x, y, opt = {}) {
 
     const legOffset = isMoving ? Math.sin(animTick * 8) * 5 : 0;
     const bodyBob = isMoving ? Math.abs(Math.sin(animTick * 8)) * 2.5 : 0;
-    const scale = (type === 'giant') ? 1.45 : ((type === 'skeleton') ? 0.75 : 1.0);
+    const scale = (type === 'giant') ? 1.4 : ((type === 'skeleton') ? 0.75 : 1.0);
     ctx.scale(scale, scale);
 
     // Gölge
@@ -673,138 +965,73 @@ function drawTurtle(ctx, x, y, opt = {}) {
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.fill();
 
-    if (type === 'skeleton') {
-        ctx.fillStyle = '#e2e8f0';
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 1.5;
+    // İki Ayak
+    ctx.fillStyle = isEnemy ? '#dc2626' : (type === 'raider' ? '#334155' : '#22c55e');
+    ctx.fillRect(-10, 10 + legOffset, 7, 10);
+    ctx.fillRect(3, 10 - legOffset, 7, 10);
+
+    // Kabuk
+    ctx.beginPath();
+    ctx.ellipse(0, -2 - bodyBob, 14, 18, 0, 0, Math.PI * 2);
+    ctx.fillStyle = isEnemy ? '#991b1b' : (opt.isPlayer ? '#166534' : (type === 'raider' ? '#0f172a' : '#15803d'));
+    ctx.fill();
+    ctx.strokeStyle = '#052e16';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Göbek
+    ctx.beginPath();
+    ctx.ellipse(0, -bodyBob, 9, 12, 0, 0, Math.PI * 2);
+    ctx.fillStyle = isEnemy ? '#f87171' : (type === 'raider' ? '#475569' : '#86efac');
+    ctx.fill();
+
+    // Kafa
+    ctx.beginPath();
+    ctx.arc(0, -18 - bodyBob, 10, 0, Math.PI * 2);
+    ctx.fillStyle = isEnemy ? '#ef4444' : (type === 'raider' ? '#1e293b' : '#4ade80');
+    ctx.fill();
+
+    // Gözler
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(-4, -20 - bodyBob, 3, 3);
+    ctx.fillRect(2, -20 - bodyBob, 3, 3);
+
+    // Aksesuar / Ekipman
+    if (opt.isPlayer) {
+        // Taç
+        ctx.fillStyle = '#facc15';
         ctx.beginPath();
-        ctx.arc(0, -16 - bodyBob, 8, 0, Math.PI*2);
+        ctx.moveTo(-7, -26 - bodyBob); ctx.lineTo(-4, -32 - bodyBob); ctx.lineTo(0, -27 - bodyBob);
+        ctx.lineTo(4, -32 - bodyBob); ctx.lineTo(7, -26 - bodyBob); ctx.closePath();
         ctx.fill();
-        ctx.stroke();
+    } else if (type === 'miner') {
+        // Baret & Kazma
+        ctx.fillStyle = '#eab308';
+        ctx.beginPath(); ctx.arc(0, -25 - bodyBob, 8, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = PICK_TIERS[currentPickTierIndex].color;
+        ctx.fillRect(10, -12 - bodyBob, 4, 14);
+    } else if (type === 'carrier') {
+        // Taşıyıcı Çuvalı
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath(); ctx.arc(12, -4 - bodyBob, 7, 0, Math.PI*2); ctx.fill();
+    } else if (type === 'cannon') {
+        // Osmanlı Topu Namlusu
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(6, -8 - bodyBob, 18, 7);
+        ctx.fillStyle = '#b45309'; // Ahşap tekerlek
+        ctx.beginPath(); ctx.arc(10, 2 - bodyBob, 6, 0, Math.PI*2); ctx.fill();
+    } else if (type === 'raider') {
+        // Haydut Maskesi
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-4, -18 - bodyBob, 2.5, 3);
-        ctx.fillRect(2, -18 - bodyBob, 2.5, 3);
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, -8 - bodyBob);
-        ctx.lineTo(0, 10 - bodyBob);
-        ctx.stroke();
-    } else {
-        ctx.fillStyle = isEnemy ? '#dc2626' : '#22c55e';
-        ctx.strokeStyle = '#14532d';
-        ctx.lineWidth = 1.8;
-        ctx.fillRect(-10, 10 + legOffset, 7, 10);
-        ctx.strokeRect(-10, 10 + legOffset, 7, 10);
-        ctx.fillRect(3, 10 - legOffset, 7, 10);
-        ctx.strokeRect(3, 10 - legOffset, 7, 10);
-
-        ctx.beginPath();
-        ctx.ellipse(0, -2 - bodyBob, 14, 18, 0, 0, Math.PI * 2);
-        ctx.fillStyle = isEnemy ? '#991b1b' : (opt.isPlayer ? '#166534' : '#15803d');
-        ctx.fill();
-        ctx.strokeStyle = '#052e16';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.ellipse(0, 0 - bodyBob, 9, 12, 0, 0, Math.PI * 2);
-        ctx.fillStyle = isEnemy ? '#f87171' : '#86efac';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(0, -18 - bodyBob, 10, 0, Math.PI * 2);
-        ctx.fillStyle = isEnemy ? '#ef4444' : '#4ade80';
-        ctx.fill();
-        ctx.strokeStyle = '#14532d';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(-4, -20 - bodyBob, 3, 3);
-        ctx.fillRect(2, -20 - bodyBob, 3, 3);
-        ctx.fillStyle = '#000';
-        ctx.fillRect(-3, -20 - bodyBob, 1.5, 2);
-        ctx.fillRect(3, -20 - bodyBob, 1.5, 2);
-
-        if (opt.isPlayer) {
-            ctx.fillStyle = '#facc15';
-            ctx.beginPath();
-            ctx.moveTo(-7, -26 - bodyBob);
-            ctx.lineTo(-4, -32 - bodyBob);
-            ctx.lineTo(0, -27 - bodyBob);
-            ctx.lineTo(4, -32 - bodyBob);
-            ctx.lineTo(7, -26 - bodyBob);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        } else if (type === 'miner') {
-            ctx.fillStyle = '#eab308';
-            ctx.beginPath();
-            ctx.arc(0, -25 - bodyBob, 8, Math.PI, 0);
-            ctx.fill();
-            const pickTier = PICKAXE_TIERS[currentPickTierIndex];
-            ctx.fillStyle = pickTier.color;
-            ctx.fillRect(10, -12 - bodyBob, 4, 14);
-            ctx.fillRect(7, -15 - bodyBob, 10, 4);
-        } else if (type === 'guard') {
-            ctx.fillStyle = '#92400e';
-            ctx.fillRect(11, -12 - bodyBob, 4, 16);
-        } else if (type === 'hunter') {
-            ctx.strokeStyle = '#78350f';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.arc(12, -4 - bodyBob, 10, -Math.PI*0.4, Math.PI*0.4);
-            ctx.stroke();
-        } else if (type === 'spear') {
-            ctx.fillStyle = '#64748b';
-            ctx.fillRect(12, -24 - bodyBob, 3, 28);
-            ctx.fillStyle = '#cbd5e1';
-            ctx.beginPath();
-            ctx.moveTo(13.5, -28 - bodyBob);
-            ctx.lineTo(10, -22 - bodyBob);
-            ctx.lineTo(17, -22 - bodyBob);
-            ctx.closePath();
-            ctx.fill();
-        } else if (type === 'horse') {
-            ctx.fillStyle = '#7c2d12';
-            ctx.fillRect(-14, 2 - bodyBob, 28, 6);
-        } else if (type === 'soldier') {
-            ctx.fillStyle = '#334155';
-            ctx.beginPath();
-            ctx.arc(0, -24 - bodyBob, 9, Math.PI, 0);
-            ctx.fill();
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(8, -8 - bodyBob, 12, 4);
-        } else if (type === 'mage') {
-            ctx.fillStyle = '#7e22ce';
-            ctx.beginPath();
-            ctx.moveTo(-9, -24 - bodyBob);
-            ctx.lineTo(0, -36 - bodyBob);
-            ctx.lineTo(9, -24 - bodyBob);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#a855f7';
-            ctx.fillRect(12, -18 - bodyBob, 3, 22);
-            ctx.beginPath();
-            ctx.arc(13.5, -20 - bodyBob, 4, 0, Math.PI*2);
-            ctx.fill();
-        } else if (type === 'giant') {
-            ctx.fillStyle = '#15803d';
-            ctx.beginPath();
-            ctx.arc(16, 2 - bodyBob, 7, 0, Math.PI*2);
-            ctx.arc(-16, 2 - bodyBob, 7, 0, Math.PI*2);
-            ctx.fill();
-        }
+        ctx.fillRect(-7, -21 - bodyBob, 14, 4);
     }
 
+    // Can Barı
     if (hp < maxHp || type !== 'miner') {
-        const bw = 24;
-        const bh = 3.5;
         ctx.fillStyle = '#ef4444';
-        ctx.fillRect(-bw/2, -32 - bodyBob, bw, bh);
+        ctx.fillRect(-12, -32 - bodyBob, 24, 3.5);
         ctx.fillStyle = '#22c55e';
-        ctx.fillRect(-bw/2, -32 - bodyBob, bw * Math.max(0, hp / maxHp), bh);
+        ctx.fillRect(-12, -32 - bodyBob, 24 * Math.max(0, hp / maxHp), 3.5);
     }
 
     if (name) {
@@ -818,34 +1045,40 @@ function drawTurtle(ctx, x, y, opt = {}) {
 }
 
 function drawStructures() {
-    // 1. Maden Mağarası (Kaya Blokları)
+    // 1. Sınır Ağaçları
+    trees.forEach(t => {
+        ctx.fillStyle = '#14532d';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#166534';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y - 4, 20, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // 2. Maden Kayaları (Her Madenciye Ayrı Maden)
     const curTier = MINE_TIERS[currentMineTierIndex];
-    ctx.fillStyle = '#5c2b0c';
-    ctx.strokeStyle = '#381604';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.roundRect(zoneMine.x - zoneMine.w/2, zoneMine.y - zoneMine.h/2, zoneMine.w, zoneMine.h, 16);
-    ctx.fill();
-    ctx.stroke();
+    mineNodes.forEach((node, idx) => {
+        ctx.fillStyle = '#78350f';
+        ctx.strokeStyle = '#451a03';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(node.x - node.w/2, node.y - node.h/2, node.w, node.h, 12);
+        ctx.fill();
+        ctx.stroke();
 
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.arc(zoneMine.x, zoneMine.y + 10, 30, Math.PI, 0);
-    ctx.fill();
+        ctx.fillStyle = curTier.color;
+        ctx.fillRect(node.x - 12, node.y - 10, 10, 8);
+        ctx.fillRect(node.x + 4, node.y - 6, 12, 10);
 
-    ctx.fillStyle = curTier.color;
-    ctx.fillRect(zoneMine.x - 25, zoneMine.y - 25, 12, 10);
-    ctx.fillRect(zoneMine.x + 14, zoneMine.y - 20, 14, 12);
+        ctx.fillStyle = '#fef08a';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`⛏️ Maden #${node.id}`, node.x, node.y - node.h/2 - 6);
+    });
 
-    ctx.fillStyle = '#fef08a';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`⛏️ ${curTier.name.toUpperCase()} MADENİ`, zoneMine.x, zoneMine.y - 52);
-    ctx.font = '10px sans-serif';
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillText(`(Bitmeyen Maden - Lv.${curTier.tier})`, zoneMine.x, zoneMine.y - 38);
-
-    // 2. Kömür / Maden Deposu
+    // 3. Depo
     ctx.fillStyle = '#854d0e';
     ctx.strokeStyle = '#451a03';
     ctx.lineWidth = 3;
@@ -854,21 +1087,14 @@ function drawStructures() {
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#a16207';
-    ctx.beginPath();
-    ctx.moveTo(zoneStorage.x - zoneStorage.w/2 - 6, zoneStorage.y - zoneStorage.h/2 + 5);
-    ctx.lineTo(zoneStorage.x, zoneStorage.y - zoneStorage.h/2 - 16);
-    ctx.lineTo(zoneStorage.x + zoneStorage.w/2 + 6, zoneStorage.y - zoneStorage.h/2 + 5);
-    ctx.closePath();
-    ctx.fill();
-
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(`📦 DEPO`, zoneStorage.x, zoneStorage.y - 20);
+    ctx.textAlign = 'center';
+    ctx.fillText(`📦 DEPO`, zoneStorage.x, zoneStorage.y - 18);
     ctx.fillStyle = '#facc15';
-    ctx.fillText(`${storageOreCount} Adet Maden`, zoneStorage.x, zoneStorage.y + 12);
+    ctx.fillText(`${storageOreCount} Maden`, zoneStorage.x, zoneStorage.y + 10);
 
-    // 3. SHOP (Pazar Yeri)
+    // 4. Shop (Pazar)
     ctx.fillStyle = '#1e3a8a';
     ctx.strokeStyle = '#172554';
     ctx.beginPath();
@@ -878,110 +1104,122 @@ function drawStructures() {
 
     ctx.fillStyle = '#ef4444';
     ctx.fillRect(zoneShop.x - zoneShop.w/2, zoneShop.y - zoneShop.h/2, zoneShop.w, 14);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(zoneShop.x - 20, zoneShop.y - zoneShop.h/2, 10, 14);
-    ctx.fillRect(zoneShop.x + 10, zoneShop.y - zoneShop.h/2, 10, 14);
-
     ctx.fillStyle = '#fef08a';
     ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(`🛒 SHOP (PAZAR)`, zoneShop.x, zoneShop.y - 18);
+    ctx.fillText(`🛒 SHOP`, zoneShop.x, zoneShop.y - 18);
     ctx.fillStyle = '#67e8f9';
     ctx.font = '10px sans-serif';
-    ctx.fillText(`Birim: +${curTier.value} Altın`, zoneShop.x, zoneShop.y + 14);
+    ctx.fillText(`+${curTier.value} Altın/Birim`, zoneShop.x, zoneShop.y + 12);
 
-    // 4. Rakip Krallık Kalesi (Savaş Meydanı)
+    // 5. Rakip Krallık
     ctx.fillStyle = '#7f1d1d';
     ctx.strokeStyle = '#450a0a';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.roundRect(zoneEnemyCamp.x - zoneEnemyCamp.w/2, zoneEnemyCamp.y - zoneEnemyCamp.h/2, zoneEnemyCamp.w, zoneEnemyCamp.h, 14);
+    ctx.roundRect(zoneEnemyCamp.x - zoneEnemyCamp.w/2, zoneEnemyCamp.y - zoneEnemyCamp.h/2, zoneEnemyCamp.w, zoneEnemyCamp.h, 16);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(zoneEnemyCamp.x - 4, zoneEnemyCamp.y - 85, 30, 20);
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillText(`⚔️ RAKİP KRALLIK`, zoneEnemyCamp.x, zoneEnemyCamp.y - zoneEnemyCamp.h/2 - 12);
-    ctx.font = '10px sans-serif';
-    ctx.fillStyle = '#fca5a5';
-    ctx.fillText(`(Ganimet: 1000 Altın veya 3 Asker)`, zoneEnemyCamp.x, zoneEnemyCamp.y - zoneEnemyCamp.h/2 + 2);
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(`⚔️ RAKİP KALE`, zoneEnemyCamp.x, zoneEnemyCamp.y - 65);
+
+    // 6. Surlar (Duvarlar)
+    walls.forEach(w => {
+        ctx.fillStyle = '#64748b';
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(w.x - w.w/2, w.y - w.h/2, w.w, w.h, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(`🧱 SUR (Can:${w.hp})`, w.x, w.y - 14);
+    });
 }
 
 /* ==========================================================================
-   OYUN DÖNGÜSÜ (GÜNCELLEMELER VE MEKANİKLER)
+   OYUN DÖNGÜSÜ & MEKANİKLERİ
    ========================================================================== */
-let lastFrameTime = performance.now();
+let lastTime = performance.now();
 
 function update(dt) {
-    let dx = 0, dy = 0;
-    if (keys['w'] || keys['arrowup']) dy -= 1;
-    if (keys['s'] || keys['arrowdown']) dy += 1;
-    if (keys['a'] || keys['arrowleft']) dx -= 1;
-    if (keys['d'] || keys['arrowright']) dx += 1;
+    // 1. Ana Karakter Hareketi (Joystick veya Klavye)
+    let mx = joyDx;
+    let my = joyDy;
+    if (keys['w'] || keys['arrowup']) my -= 1;
+    if (keys['s'] || keys['arrowdown']) my += 1;
+    if (keys['a'] || keys['arrowleft']) mx -= 1;
+    if (keys['d'] || keys['arrowright']) mx += 1;
 
-    if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
-
-    if (dx !== 0 || dy !== 0) {
-        player.x += dx * player.speed;
-        player.y += dy * player.speed;
+    const len = Math.hypot(mx, my);
+    if (len > 0) {
+        player.x += (mx / Math.max(1, len)) * player.speed;
+        player.y += (my / Math.max(1, len)) * player.speed;
         player.moving = true;
         player.animTick += dt;
 
-        player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
-        player.y = Math.max(30, Math.min(canvas.height - 30, player.y));
+        // Ağaç sınırlarına çarpışma engeli
+        player.x = Math.max(70, Math.min(WORLD_W - 70, player.x));
+        player.y = Math.max(70, Math.min(WORLD_H - 70, player.y));
 
         sendNetworkMove();
     } else {
         player.moving = false;
     }
 
-    // Depodan Maden Alımı
-    const distToStorage = Math.hypot(player.x - zoneStorage.x, player.y - zoneStorage.y);
-    if (distToStorage < 55 && storageOreCount > 0 && playerCarriedOre < PLAYER_MAX_CARRY) {
-        const takeAmount = Math.min(storageOreCount, PLAYER_MAX_CARRY - playerCarriedOre);
-        storageOreCount -= takeAmount;
-        playerCarriedOre += takeAmount;
-        addPopup(player.x, player.y - 15, `+${takeAmount} Maden Aldın! 🎒`, '#38bdf8');
+    // Kamera Takibi
+    camera.x = player.x - canvas.width / 2;
+    camera.y = player.y - canvas.height / 2;
+    camera.x = Math.max(0, Math.min(WORLD_W - canvas.width, camera.x));
+    camera.y = Math.max(0, Math.min(WORLD_H - canvas.height, camera.y));
+
+    // 2. Depodan Maden Alımı & Shop Satışı
+    const distStorage = Math.hypot(player.x - zoneStorage.x, player.y - zoneStorage.y);
+    if (distStorage < 60 && storageOreCount > 0 && playerCarriedOre < PLAYER_MAX_CARRY) {
+        const take = Math.min(storageOreCount, PLAYER_MAX_CARRY - playerCarriedOre);
+        storageOreCount -= take;
+        playerCarriedOre += take;
+        addPopup(player.x, player.y - 15, `+${take} Maden Aldın! 🎒`, '#38bdf8');
     }
 
-    // Shop'ta Satış
-    const distToShop = Math.hypot(player.x - zoneShop.x, player.y - zoneShop.y);
-    if (distToShop < 55 && playerCarriedOre > 0) {
-        const curTier = MINE_TIERS[currentMineTierIndex];
-        const gain = playerCarriedOre * curTier.value;
+    const distShop = Math.hypot(player.x - zoneShop.x, player.y - zoneShop.y);
+    if (distShop < 65 && playerCarriedOre > 0) {
+        const gain = playerCarriedOre * MINE_TIERS[currentMineTierIndex].value;
         money += gain;
-        addPopup(player.x, player.y - 20, `+${gain} Altın Kazandın! 💰`, '#facc15');
         playSound('coin');
+        addPopup(player.x, player.y - 20, `+${gain} Altın Kazandın! 💰`, '#facc15');
         playerCarriedOre = 0;
         updateUI();
         sendStatsUpdate();
     }
 
-    // Madenciler
-    const pickTier = PICKAXE_TIERS[currentPickTierIndex];
+    // 3. Madenciler (Her Biri Kendi Düğümüne Gider)
+    const pickTier = PICK_TIERS[currentPickTierIndex];
     workers.forEach(w => {
         w.animTick += dt;
         if (w.state === 'to_mine') {
-            const dist = Math.hypot(zoneMine.x - w.x, zoneMine.y - w.y);
+            const dist = Math.hypot(w.targetNode.x - w.x, w.targetNode.y - w.y);
             if (dist > 15) {
-                w.x += ((zoneMine.x - w.x) / dist) * 2.2;
-                w.y += ((zoneMine.y - w.y) / dist) * 2.2;
+                w.x += ((w.targetNode.x - w.x) / dist) * 2.3;
+                w.y += ((w.targetNode.y - w.y) / dist) * 2.3;
             } else {
                 w.state = 'mining';
                 w.miningTimer = 0;
             }
         } else if (w.state === 'mining') {
             w.miningTimer += dt * pickTier.speedMult;
-            if (w.miningTimer >= 2.2) {
+            if (w.miningTimer >= 2.0) {
                 w.state = 'to_storage';
                 w.carrying = 1;
             }
         } else if (w.state === 'to_storage') {
             const dist = Math.hypot(zoneStorage.x - w.x, zoneStorage.y - w.y);
             if (dist > 15) {
-                w.x += ((zoneStorage.x - w.x) / dist) * 2.2;
-                w.y += ((zoneStorage.y - w.y) / dist) * 2.2;
+                w.x += ((zoneStorage.x - w.x) / dist) * 2.3;
+                w.y += ((zoneStorage.y - w.y) / dist) * 2.3;
             } else {
                 storageOreCount += w.carrying;
                 w.carrying = 0;
@@ -990,25 +1228,97 @@ function update(dt) {
         }
     });
 
-    // Savaş Mekaniği
-    if (warActive) {
-        warTimer += dt;
+    // 4. Taşıyıcı Botlar (Otomatik Depodan Alıp Shop'a Satarlar)
+    carriers.forEach(c => {
+        c.animTick += dt;
+        if (c.state === 'to_storage') {
+            const dist = Math.hypot(zoneStorage.x - c.x, zoneStorage.y - c.y);
+            if (dist > 15) {
+                c.x += ((zoneStorage.x - c.x) / dist) * c.speed;
+                c.y += ((zoneStorage.y - c.y) / dist) * c.speed;
+            } else {
+                if (storageOreCount > 0) {
+                    const take = Math.min(storageOreCount, 4);
+                    storageOreCount -= take;
+                    c.carrying = take;
+                    c.state = 'to_shop';
+                }
+            }
+        } else if (c.state === 'to_shop') {
+            const dist = Math.hypot(zoneShop.x - c.x, zoneShop.y - c.y);
+            if (dist > 15) {
+                c.x += ((zoneShop.x - c.x) / dist) * c.speed;
+                c.y += ((zoneShop.y - c.y) / dist) * c.speed;
+            } else {
+                const earn = c.carrying * MINE_TIERS[currentMineTierIndex].value;
+                money += earn;
+                playSound('coin');
+                addPopup(c.x, c.y - 15, `+${earn} Altın (Bot Taşıdı) 💰`, '#67e8f9');
+                c.carrying = 0;
+                c.state = 'to_storage';
+                updateUI();
+                sendStatsUpdate();
+            }
+        }
+    });
 
-        soldiers.filter(s => s.type === 'mage' && s.level >= 2 && s.hp > 0).forEach(mage => {
-            mage.skeletons = mage.skeletons.filter(sk => sk.hp > 0);
-            if (mage.skeletons.length < 5 && Math.random() < 0.02) {
-                const sk = createFighter('skeleton', false);
-                sk.x = mage.x + (Math.random()*40 - 20);
-                sk.y = mage.y + (Math.random()*40 - 20);
-                mage.skeletons.push(sk);
-                soldiers.push(sk);
-                addPopup(sk.x, sk.y, "☠️ İskelet Dirildi!", '#cbd5e1');
-                playSound('magic');
+    // 5. Yağmacı Yapay Zekası
+    raiders.forEach((r, idx) => {
+        r.animTick += dt;
+        r.cooldown = Math.max(0, r.cooldown - dt);
+
+        // Yakındaki madenci veya depoya yürür
+        const dist = Math.hypot(zoneStorage.x - r.x, zoneStorage.y - r.y);
+        if (dist > 25) {
+            r.x += ((zoneStorage.x - r.x) / dist) * r.speed;
+            r.y += ((zoneStorage.y - r.y) / dist) * r.speed;
+        } else {
+            if (r.cooldown <= 0) {
+                r.cooldown = 2.0;
+                if (storageOreCount > 0) {
+                    storageOreCount = Math.max(0, storageOreCount - 2);
+                    addPopup(r.x, r.y - 15, `-2 Maden Yağmalandı! 💀`, '#ef4444');
+                }
+            }
+        }
+
+        // Askerlerimiz yağmacıya saldırır
+        soldiers.forEach(s => {
+            const sd = Math.hypot(r.x - s.x, r.y - s.y);
+            if (sd < 160 && s.type !== 'cannon') {
+                r.hp -= dt * 4;
+            }
+        });
+    });
+    raiders = raiders.filter(r => r.hp > 0);
+
+    // 6. Savaş & Topçu Mantığı
+    if (warActive) {
+        // Topçunun görevi: Düşman surlarını yıkmak!
+        soldiers.filter(s => s.type === 'cannon').forEach(cannon => {
+            cannon.attackCooldown = Math.max(0, cannon.attackCooldown - dt);
+            if (walls.length > 0) {
+                const targetWall = walls[0];
+                const d = Math.hypot(targetWall.x - cannon.x, targetWall.y - cannon.y);
+                if (d > cannon.range) {
+                    cannon.x += ((targetWall.x - cannon.x) / d) * cannon.speed;
+                    cannon.y += ((targetWall.y - cannon.y) / d) * cannon.speed;
+                } else if (cannon.attackCooldown <= 0) {
+                    cannon.attackCooldown = 2.2;
+                    playSound('cannon');
+                    targetWall.hp -= cannon.damage;
+                    addPopup(targetWall.x, targetWall.y, `-35 GÜLLE DARBESİ! 💣`, '#f97316');
+                    if (targetWall.hp <= 0) {
+                        walls.shift();
+                        addPopup(targetWall.x, targetWall.y, `SUR YIKILDI! 💥`, '#ef4444');
+                    }
+                }
             }
         });
 
-        updateFighters(soldiers, enemySoldiers, dt);
-        updateFighters(enemySoldiers, soldiers, dt);
+        // Diğer askerler hücum eder (Surdan sadece sahibi geçebilir!)
+        updateWarCombat(soldiers, enemySoldiers, dt);
+        updateWarCombat(enemySoldiers, soldiers, dt);
 
         soldiers = soldiers.filter(s => s.hp > 0);
         enemySoldiers = enemySoldiers.filter(s => s.hp > 0);
@@ -1020,273 +1330,154 @@ function update(dt) {
         }
     }
 
-    // Mermiler
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        const p = projectiles[i];
-        const dist = Math.hypot(p.target.x - p.x, p.target.y - p.y);
-        if (dist < 10 || p.target.hp <= 0) {
-            let hit = true;
-            if (p.hitChance !== undefined) {
-                hit = Math.random() <= p.hitChance;
-            }
-
-            if (hit && p.target.hp > 0) {
-                p.target.hp -= p.damage;
-                addPopup(p.target.x, p.target.y - 10, `-${p.damage}`, '#ef4444');
-                playSound('hit');
-            } else {
-                addPopup(p.target.x, p.target.y - 10, `Iskaladı! 💨`, '#94a3b8');
-            }
-            projectiles.splice(i, 1);
-        } else {
-            p.x += ((p.target.x - p.x) / dist) * p.speed;
-            p.y += ((p.target.y - p.y) / dist) * p.speed;
-        }
-    }
-
     // Popuplar
     for (let i = popups.length - 1; i >= 0; i--) {
-        popups[i].y -= dt * 32;
+        popups[i].y -= dt * 30;
         popups[i].life -= dt * 0.9;
         if (popups[i].life <= 0) popups.splice(i, 1);
     }
 }
 
-function updateFighters(allies, enemies, dt) {
+function updateWarCombat(allies, enemies, dt) {
     allies.forEach(a => {
+        if (a.type === 'cannon') return; // Topçu askere saldırmaz
         a.animTick += dt;
         a.attackCooldown = Math.max(0, a.attackCooldown - dt);
 
-        let nearestEnemy = null;
-        let minDist = 99999;
+        let nearest = null;
+        let minD = 99999;
         enemies.forEach(e => {
             const d = Math.hypot(e.x - a.x, e.y - a.y);
-            if (d < minDist) {
-                minDist = d;
-                nearestEnemy = e;
-            }
+            if (d < minD) { minD = d; nearest = e; }
         });
 
-        if (nearestEnemy) {
-            if (minDist > a.range) {
-                a.x += ((nearestEnemy.x - a.x) / minDist) * a.speed;
-                a.y += ((nearestEnemy.y - a.y) / minDist) * a.speed;
-            } else {
-                if (a.attackCooldown <= 0) {
-                    a.attackCooldown = 1.1;
-                    executeAttack(a, nearestEnemy);
-                }
+        if (nearest) {
+            if (minD > a.range) {
+                a.x += ((nearest.x - a.x) / minD) * a.speed;
+                a.y += ((nearest.y - a.y) / minD) * a.speed;
+            } else if (a.attackCooldown <= 0) {
+                a.attackCooldown = 1.2;
+                nearest.hp -= a.damage;
+                addPopup(nearest.x, nearest.y - 10, `-${a.damage}`, '#ef4444');
             }
         }
     });
 }
 
-function executeAttack(attacker, target) {
-    if (attacker.type === 'guard' || attacker.type === 'giant' || attacker.type === 'skeleton') {
-        target.hp -= attacker.damage;
-        addPopup(target.x, target.y - 10, `-${attacker.damage}`, '#ef4444');
-        playSound('hit');
-    } else if (attacker.type === 'horse') {
-        target.hp -= 10;
-        addPopup(target.x, target.y - 10, `-10 Çarpma! 🐎`, '#f97316');
-        playSound('hit');
-    } else if (attacker.type === 'hunter') {
-        const hitChances = [0.2, 0.4, 0.6, 0.8, 1.0];
-        const hitRate = hitChances[attacker.level - 1] || 0.2;
-        projectiles.push({
-            x: attacker.x, y: attacker.y,
-            target: target,
-            damage: 3,
-            speed: 7.5,
-            hitChance: hitRate,
-            color: '#78350f'
-        });
-    } else if (attacker.type === 'spear') {
-        if (attacker.level === 1) {
-            target.hp -= 5;
-            addPopup(target.x, target.y - 10, `-5 Mızrak!`, '#ef4444');
-            playSound('hit');
-        } else {
-            const spearDamages = [5, 5, 6, 7, 8];
-            const dmg = spearDamages[attacker.level - 1] || 5;
-            projectiles.push({
-                x: attacker.x, y: attacker.y,
-                target: target,
-                damage: dmg,
-                speed: 6.5,
-                color: '#94a3b8'
-            });
-        }
-    } else if (attacker.type === 'soldier') {
-        if (attacker.level === 1) {
-            target.hp -= 10;
-            addPopup(target.x, target.y - 10, `-10 Süngü!`, '#ef4444');
-            playSound('hit');
-        } else {
-            const hitRates = [0.3, 0.3, 0.5, 0.7, 1.0];
-            const rate = hitRates[attacker.level - 1] || 0.3;
-            projectiles.push({
-                x: attacker.x, y: attacker.y,
-                target: target,
-                damage: 13,
-                speed: 9.0,
-                hitChance: rate,
-                color: '#facc15'
-            });
-        }
-    } else if (attacker.type === 'mage') {
-        const dmg = (attacker.level >= 2) ? 20 : 15;
-        projectiles.push({
-            x: attacker.x, y: attacker.y,
-            target: target,
-            damage: dmg,
-            speed: 5.5,
-            color: '#a855f7'
-        });
-        playSound('magic');
+function toggleWar() {
+    if (soldiers.length === 0) {
+        alert("Savaşa girmeden önce kışlandan en az 1 asker satın almalısın!");
+        return;
     }
+    warActive = !warActive;
+    document.getElementById('war-banner').style.display = warActive ? 'block' : 'none';
 }
 
-/* ==========================================================================
-   SAVAŞ SONUCU VE GANİMET SİSTEMİ (1000 Altın veya 3 Asker Kuralı)
-   ========================================================================== */
-function endWar(isVictory) {
+function endWar(victory) {
     warActive = false;
     document.getElementById('war-banner').style.display = 'none';
-    document.getElementById('btn-start-war').disabled = false;
-
-    const modal = document.getElementById('game-modal');
-    const title = document.getElementById('modal-title');
-    const desc = document.getElementById('modal-desc');
-
-    if (isVictory) {
-        playSound('victory');
-        title.innerText = "🏆 ZAFER! RAKİP MAĞLUP EDİLDİ!";
-        const lootGold = 1000;
-        money += lootGold;
-        desc.innerHTML = `Tebrikler Lider! Savaş kazanıldı!<br><br><b>Kazanılan Ganimet:</b> <span style="color:#facc15;">+${lootGold} Altın</span> kazandın!`;
-        addPopup(player.x, player.y - 30, `+1000 ALTIN GANİMET! 👑`, '#facc15');
+    if (victory) {
+        money += 1000;
+        alert("🏆 ZAFER! Rakip mağlup edildi ve 1000 Altın ganimet kazandın!");
     } else {
-        title.innerText = "💀 YENİLGİ! ORDUMUZ GERİ ÇEKİLDİ!";
-        if (money >= 1000) {
-            money -= 1000;
-            desc.innerHTML = `Savaşı kaybettik... Rakip Krallık senden <b>1000 Altın</b> tazminat aldı.`;
-        } else {
-            const lostWorkers = workers.splice(0, Math.min(3, workers.length));
-            desc.innerHTML = `Yeterli altının olmadığı için kural gereği <b>${lostWorkers.length} Madenci/Çalışanın</b> rakibe esir düştü!`;
-        }
+        if (money >= 1000) money -= 1000;
+        else workers.splice(0, Math.min(3, workers.length));
+        alert("💀 YENİLGİ! Rakip ganimeti aldı!");
     }
-
-    modal.style.display = 'block';
     spawnEnemyGarrison();
     updateUI();
     sendStatsUpdate();
 }
 
-function closeModal() {
-    document.getElementById('game-modal').style.display = 'none';
-}
-
 /* ==========================================================================
-   RENDER (EKRANA ÇİZİM)
+   RENDER
    ========================================================================== */
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Çimen Zemin
-    ctx.fillStyle = '#388e3c';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+
+    // Çim Zemin
+    ctx.fillStyle = '#2e7d32';
+    ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 
     drawStructures();
 
-    // Madenci Kaplumbağalar
+    // Madenciler
     workers.forEach(w => {
         drawTurtle(ctx, w.x, w.y, {
-            type: 'miner',
-            name: w.name,
-            hp: w.hp,
-            maxHp: w.maxHp,
-            isMoving: (w.state === 'to_mine' || w.state === 'to_storage'),
-            animTick: w.animTick
+            type: 'miner', name: w.name, hp: w.hp, maxHp: w.maxHp,
+            isMoving: (w.state === 'to_mine' || w.state === 'to_storage'), animTick: w.animTick
         });
     });
 
-    // Oyuncunun Ordusu
+    // Taşıyıcı Botlar
+    carriers.forEach(c => {
+        drawTurtle(ctx, c.x, c.y, {
+            type: 'carrier', name: c.name, hp: 10, maxHp: 10,
+            isMoving: true, animTick: c.animTick
+        });
+    });
+
+    // Yağmacılar
+    raiders.forEach(r => {
+        drawTurtle(ctx, r.x, r.y, {
+            type: 'raider', name: "Haydut", hp: r.hp, maxHp: r.maxHp,
+            isMoving: true, animTick: r.animTick
+        });
+    });
+
+    // Askerler
     soldiers.forEach(s => {
         drawTurtle(ctx, s.x, s.y, {
-            type: s.type,
-            name: s.name,
-            hp: s.hp,
-            maxHp: s.maxHp,
-            isMoving: warActive,
-            animTick: s.animTick,
-            isEnemy: false
+            type: s.type, name: s.name, hp: s.hp, maxHp: s.maxHp,
+            isMoving: warActive, animTick: s.animTick, isEnemy: false
         });
     });
 
-    // Rakip Dövüşçüler
+    // Düşman Askerleri
     enemySoldiers.forEach(e => {
         drawTurtle(ctx, e.x, e.y, {
-            type: e.type,
-            name: `Rakip ${e.name}`,
-            hp: e.hp,
-            maxHp: e.maxHp,
-            isMoving: warActive,
-            animTick: e.animTick,
-            isEnemy: true
+            type: e.type, name: `Düşman ${e.name}`, hp: e.hp, maxHp: e.maxHp,
+            isMoving: warActive, animTick: e.animTick, isEnemy: true
         });
     });
 
-    // Diğer Çevrim İçi Oyuncular
+    // Diğer Online Oyuncular
     for (const id in remotePlayers) {
         const rp = remotePlayers[id];
         drawTurtle(ctx, rp.x, rp.y, {
-            isPlayer: true,
-            type: 'leader',
-            name: `${rp.name || 'Oyuncu'} 🌟 (${rp.money || 0} Altın)`,
-            hp: 30,
-            maxHp: 30,
-            isMoving: rp.moving || false,
-            animTick: rp.animTick || 0
+            isPlayer: true, name: `${rp.name || 'Oyuncu'} 🌟`, hp: 30, maxHp: 30,
+            isMoving: true, animTick: rp.animTick || 0
         });
     }
 
-    // Ana Oyuncu (Lider Kaplumbağa: Can 30, saldıramaz)
+    // Ana Oyuncu (Sen)
     drawTurtle(ctx, player.x, player.y, {
         isPlayer: true,
-        type: 'leader',
-        name: `Lider (Sırtında: ${playerCarriedOre}/${PLAYER_MAX_CARRY} Maden)`,
-        hp: player.hp,
-        maxHp: player.maxHp,
-        isMoving: player.moving,
-        animTick: player.animTick
+        name: `${myPlayerName} (Sırtında: ${playerCarriedOre}/${PLAYER_MAX_CARRY})`,
+        hp: player.hp, maxHp: player.maxHp, isMoving: player.moving, animTick: player.animTick
     });
 
-    // Mermiler ve Büyüler
-    projectiles.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Uçuşan Yazılar
+    // Popuplar
     popups.forEach(p => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.life);
         ctx.fillStyle = p.color;
         ctx.font = 'bold 15px sans-serif';
         ctx.textAlign = 'center';
-        ctx.shadowColor = '#000';
-        ctx.shadowBlur = 4;
+        ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
         ctx.fillText(p.text, p.x, p.y);
         ctx.restore();
     });
+
+    ctx.restore();
 }
 
 function gameLoop(now) {
-    const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
-    lastFrameTime = now;
+    const dt = Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
     update(dt);
     render();
     requestAnimationFrame(gameLoop);
@@ -1294,241 +1485,179 @@ function gameLoop(now) {
 requestAnimationFrame(gameLoop);
 
 /* ==========================================================================
-   UI VE SATIN ALMA İŞLEMLERİ
+   UI, SATIN ALMALAR VE BUTONLAR
    ========================================================================== */
 function updateUI() {
-    document.getElementById('ui-money').innerText = money;
-    document.getElementById('ui-army-count').innerText = `${soldiers.length} Asker`;
-    document.getElementById('badge-miner-count').innerText = `${workers.length} Madenci`;
+    document.getElementById('ui-gold').innerText = money;
+    document.getElementById('ui-army').innerText = `${soldiers.length} Asker`;
+    document.getElementById('sub-miner').innerText = `${workers.length} Madenci`;
 
-    const curTier = MINE_TIERS[currentMineTierIndex];
-    document.getElementById('badge-mine-tier').innerText = `${curTier.name} (Lv.${curTier.tier})`;
-    if (curTier.upgradeCost > 0) {
-        document.getElementById('cost-mine').innerText = `${curTier.upgradeCost} Altın`;
-        document.getElementById('btn-up-mine').disabled = (money < curTier.upgradeCost);
-    } else {
-        document.getElementById('cost-mine').innerText = `MAKS SEVİYE`;
-        document.getElementById('btn-up-mine').disabled = true;
-    }
+    const curM = MINE_TIERS[currentMineTierIndex];
+    document.getElementById('sub-mine').innerText = `${curM.name} (Lv.${curM.tier})`;
+    document.getElementById('cost-mine').innerText = curM.upgradeCost > 0 ? `${curM.upgradeCost} Altın` : "MAKS";
+    document.getElementById('btn-up-mine').disabled = (curM.upgradeCost === 0 || money < curM.upgradeCost);
 
-    const curPick = PICKAXE_TIERS[currentPickTierIndex];
-    document.getElementById('badge-pick-tier').innerText = `${curPick.name} (Lv.${curPick.tier})`;
-    if (curPick.upgradeCost > 0) {
-        document.getElementById('cost-miner-pick').innerText = `${curPick.upgradeCost} Altın`;
-        document.getElementById('btn-up-miner-pick').disabled = (money < curPick.upgradeCost);
-    } else {
-        document.getElementById('cost-miner-pick').innerText = `MAKS SEVİYE`;
-        document.getElementById('btn-up-miner-pick').disabled = true;
-    }
+    const curP = PICK_TIERS[currentPickTierIndex];
+    document.getElementById('sub-pick').innerText = `${curP.name} (Lv.${curP.tier})`;
+    document.getElementById('cost-pick').innerText = curP.upgradeCost > 0 ? `${curP.upgradeCost} Altın` : "MAKS";
+    document.getElementById('btn-up-pick').disabled = (curP.upgradeCost === 0 || money < curP.upgradeCost);
 
-    // Buton Kilitleri
-    document.getElementById('btn-buy-miner').disabled = (money < 30);
-    document.getElementById('btn-buy-guard').disabled = (money < 25);
-    document.getElementById('btn-buy-hunter').disabled = (money < 40);
-    document.getElementById('btn-buy-spear').disabled = (money < 45);
-    document.getElementById('btn-buy-horse').disabled = (money < 65);
-    document.getElementById('btn-buy-soldier').disabled = (money < 75);
-    document.getElementById('btn-buy-mage').disabled = (money < 90);
-    document.getElementById('btn-buy-giant').disabled = (money < 120);
+    document.getElementById('btn-buy-miner').disabled = (money < 45);
+    document.getElementById('btn-buy-carrier').disabled = (money < 150);
+    document.getElementById('btn-build-wall').disabled = (money < 200);
+    document.getElementById('btn-buy-cannon').disabled = (money < 190);
+    document.getElementById('btn-buy-guard').disabled = (money < 40);
+    document.getElementById('btn-buy-hunter').disabled = (money < 60);
+    document.getElementById('btn-buy-spear').disabled = (money < 70);
+    document.getElementById('btn-buy-horse').disabled = (money < 110);
+    document.getElementById('btn-buy-soldier').disabled = (money < 130);
+    document.getElementById('btn-buy-mage').disabled = (money < 160);
+    document.getElementById('btn-buy-giant').disabled = (money < 220);
 }
 
-// Buton Etkinlikleri
-document.getElementById('btn-up-mine').addEventListener('click', () => {
-    const curTier = MINE_TIERS[currentMineTierIndex];
-    if (curTier.upgradeCost > 0 && money >= curTier.upgradeCost) {
-        money -= curTier.upgradeCost;
-        currentMineTierIndex++;
-        playSound('coin');
-        addPopup(zoneMine.x, zoneMine.y - 20, `Maden ${MINE_TIERS[currentMineTierIndex].name} Oldu! 💎`, '#67e8f9');
-        updateUI();
+// Buton Olayları
+document.getElementById('btn-up-mine').onclick = () => {
+    const cur = MINE_TIERS[currentMineTierIndex];
+    if (cur.upgradeCost > 0 && money >= cur.upgradeCost) {
+        money -= cur.upgradeCost; currentMineTierIndex++;
+        playSound('coin'); updateUI();
     }
-});
-
-document.getElementById('btn-up-miner-pick').addEventListener('click', () => {
-    const curPick = PICKAXE_TIERS[currentPickTierIndex];
-    if (curPick.upgradeCost > 0 && money >= curPick.upgradeCost) {
-        money -= curPick.upgradeCost;
-        currentPickTierIndex++;
-        playSound('coin');
-        addPopup(zoneStorage.x, zoneStorage.y - 20, `Kazmalar ${PICKAXE_TIERS[currentPickTierIndex].name} Oldu! 🪓`, '#fde047');
-        updateUI();
+};
+document.getElementById('btn-up-pick').onclick = () => {
+    const cur = PICK_TIERS[currentPickTierIndex];
+    if (cur.upgradeCost > 0 && money >= cur.upgradeCost) {
+        money -= cur.upgradeCost; currentPickTierIndex++;
+        playSound('coin'); updateUI();
     }
-});
-
-document.getElementById('btn-buy-miner').addEventListener('click', () => {
-    if (money >= 30) {
-        money -= 30;
-        workers.push(createMiner(workers.length + 1));
-        playSound('coin');
-        addPopup(zoneStorage.x, zoneStorage.y - 20, `Yeni Madenci Geldi! 🐢`, '#86efac');
-        updateUI();
-    }
-});
-
-document.getElementById('btn-buy-guard').addEventListener('click', () => {
-    if (money >= 25) {
-        money -= 25;
-        soldiers.push(createFighter('guard', false));
-        playSound('coin');
-        addPopup(player.x, player.y - 20, `Nöbetçi Katıldı! 🛡️`, '#86efac');
-        updateUI();
-    }
-});
-
-document.getElementById('btn-buy-hunter').addEventListener('click', () => {
-    if (money >= 40) {
-        money -= 40;
-        soldiers.push(createFighter('hunter', false));
-        playSound('coin');
-        addPopup(player.x, player.y - 20, `Avcı Katıldı! 🏹`, '#86efac');
-        updateUI();
-    }
-});
-
-document.getElementById('btn-buy-spear').addEventListener('click', () => {
+};
+document.getElementById('btn-buy-miner').onclick = () => {
     if (money >= 45) {
-        money -= 45;
-        soldiers.push(createFighter('spear', false));
-        playSound('coin');
-        addPopup(player.x, player.y - 20, `Mızraklı Katıldı! 🔱`, '#86efac');
-        updateUI();
+        money -= 45; workers.push(createMiner(workers.length + 1));
+        playSound('coin'); updateUI();
     }
-});
+};
+document.getElementById('btn-buy-carrier').onclick = () => {
+    if (money >= 150) {
+        money -= 150; carriers.push(createCarrier(carriers.length + 1));
+        playSound('coin'); updateUI();
+        addPopup(player.x, player.y - 20, "Taşıyıcı Bot Göreve Başladı! 📦", '#38bdf8');
+    }
+};
+document.getElementById('btn-build-wall').onclick = doBuildWall;
+document.getElementById('btn-buy-cannon').onclick = () => {
+    if (money >= 190) {
+        money -= 190; soldiers.push(createFighter('cannon', false));
+        playSound('cannon'); updateUI();
+        addPopup(player.x, player.y - 20, "Osmanlı Topçusu Katıldı! 💣", '#f59e0b');
+    }
+};
+document.getElementById('btn-buy-guard').onclick = () => { if (money >= 40) { money -= 40; soldiers.push(createFighter('guard')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-hunter').onclick = () => { if (money >= 60) { money -= 60; soldiers.push(createFighter('hunter')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-spear').onclick = () => { if (money >= 70) { money -= 70; soldiers.push(createFighter('spear')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-horse').onclick = () => { if (money >= 110) { money -= 110; soldiers.push(createFighter('horse')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-soldier').onclick = () => { if (money >= 130) { money -= 130; soldiers.push(createFighter('soldier')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-mage').onclick = () => { if (money >= 160) { money -= 160; soldiers.push(createFighter('mage')); playSound('coin'); updateUI(); }};
+document.getElementById('btn-buy-giant').onclick = () => { if (money >= 220) { money -= 220; soldiers.push(createFighter('giant')); playSound('coin'); updateUI(); }};
 
-document.getElementById('btn-buy-horse').addEventListener('click', () => {
-    if (money >= 65) {
-        money -= 65;
-        soldiers.push(createFighter('horse', false));
-        playSound('coin');
-        addPopup(player.x, player.y - 20, `Atlı Katıldı! 🐎`, '#f97316');
-        updateUI();
-    }
-});
+// Rehber Aç/Kapat
+const guideModal = document.getElementById('guide-modal');
+document.getElementById('btn-toggle-guide').onclick = () => {
+    guideModal.style.display = (guideModal.style.display === 'block') ? 'none' : 'block';
+};
+document.getElementById('btn-close-guide').onclick = () => { guideModal.style.display = 'none'; };
 
-document.getElementById('btn-buy-soldier').addEventListener('click', () => {
-    if (money >= 75) {
-        money -= 75;
-        soldiers.push(createFighter('soldier', false));
-        playSound('coin');
-        addPopup(player.x, player.y - 20, `Asker Katıldı! 🪖`, '#60a5fa');
-        updateUI();
+// Oda Kodu Değiştirme Butonu (Tıklanınca klavye açılır)
+document.getElementById('btn-room-badge').onclick = () => {
+    const newRoom = prompt("Katılmak veya oluşturmak istediğiniz ODA KODUNU girin:", roomCode);
+    if (newRoom && newRoom.trim() !== "") {
+        roomCode = newRoom.trim().toUpperCase();
+        document.getElementById('ui-room').innerText = roomCode;
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'join_room', room: roomCode, name: myPlayerName }));
+        }
     }
-});
-
-document.getElementById('btn-buy-mage').addEventListener('click', () => {
-    if (money >= 90) {
-        money -= 90;
-        soldiers.push(createFighter('mage', false));
-        playSound('magic');
-        addPopup(player.x, player.y - 20, `Büyücü Katıldı! 🧙‍♂️`, '#c084fc');
-        updateUI();
-    }
-});
-
-document.getElementById('btn-buy-giant').addEventListener('click', () => {
-    if (money >= 120) {
-        money -= 120;
-        soldiers.push(createFighter('giant', false));
-        playSound('hit');
-        addPopup(player.x, player.y - 20, `Dev Katıldı! 🦍`, '#f43f5e');
-        updateUI();
-    }
-});
-
-document.getElementById('btn-start-war').addEventListener('click', () => {
-    if (soldiers.length === 0) {
-        alert("Savaşa girmeden önce en az bir savaşçı kaplumbağa (Nöbetçi, Avcı vb.) satın almalısın!");
-        return;
-    }
-    warActive = true;
-    warTimer = 0;
-    document.getElementById('war-banner').style.display = 'block';
-    document.getElementById('btn-start-war').disabled = true;
-    playSound('hit');
-});
+};
 
 /* ==========================================================================
-   ÇEVRİM İÇİ / AĞ BAĞLANTISI (WebSocket - 17 Kişilik Oda Senkronizasyonu)
+   AĞ BAĞLANTISI (WebSocket - Oda Bazlı Senkronizasyon)
    ========================================================================== */
-function connectSocket() {
+let socket = null;
+let remotePlayers = {};
+let lastSend = 0;
+
+function initNetwork(targetRoom) {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host || 'localhost:8080';
     const wsUrl = `${proto}//${host}`;
 
     try {
         socket = new WebSocket(wsUrl);
-
         socket.onopen = () => {
-            updateOnlineCount();
+            socket.send(JSON.stringify({
+                type: 'join_room',
+                room: targetRoom,
+                name: myPlayerName
+            }));
         };
 
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'init') {
-                    myId = data.id;
+                    remotePlayers = {};
                     data.players.forEach(p => {
-                        if (p.id !== myId) remotePlayers[p.id] = p;
+                        if (p.id !== data.id) remotePlayers[p.id] = p;
                     });
-                    updateOnlineCount();
                 } else if (data.type === 'player_join') {
-                    if (data.player.id !== myId) {
-                        remotePlayers[data.player.id] = data.player;
-                        updateOnlineCount();
-                        addPopup(data.player.x, data.player.y, `Yeni Krallık Katıldı! 👑`, '#fde047');
-                    }
+                    remotePlayers[data.player.id] = data.player;
+                    addPopup(data.player.x, data.player.y, `Odaya Katıldı: ${data.player.name} 👑`, '#67e8f9');
                 } else if (data.type === 'player_move') {
                     if (remotePlayers[data.id]) {
                         remotePlayers[data.id].x = data.x;
                         remotePlayers[data.id].y = data.y;
-                        remotePlayers[data.id].moving = true;
-                        remotePlayers[data.id].animTick = (remotePlayers[data.id].animTick || 0) + 0.1;
                     }
-                } else if (data.type === 'player_stats') {
-                    if (remotePlayers[data.id]) {
-                        remotePlayers[data.id].money = data.money;
-                    }
+                } else if (data.type === 'wall_built') {
+                    walls.push(data.wall);
                 } else if (data.type === 'player_leave') {
                     delete remotePlayers[data.id];
-                    updateOnlineCount();
                 }
             } catch(e) {}
-        };
-
-        socket.onclose = () => {
-            setTimeout(connectSocket, 3000);
         };
     } catch(e) {}
 }
 
-function updateOnlineCount() {
-    const count = Object.keys(remotePlayers).length + 1;
-    const tag = document.getElementById('txt-online-status');
-    if (tag) tag.innerText = `🌐 Çevrim İçi: ${count}/17 Oyuncu`;
-}
-
 function sendNetworkMove() {
     const now = performance.now();
-    if (socket && socket.readyState === WebSocket.OPEN && now - lastNetSend > 45) {
-        lastNetSend = now;
-        socket.send(JSON.stringify({
-            type: 'move',
-            x: Math.round(player.x),
-            y: Math.round(player.y)
-        }));
+    if (socket && socket.readyState === WebSocket.OPEN && now - lastSend > 50) {
+        lastSend = now;
+        socket.send(JSON.stringify({ type: 'move', x: Math.round(player.x), y: Math.round(player.y) }));
     }
 }
 
 function sendStatsUpdate() {
     if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: 'stats_update',
-            money: money
-        }));
+        socket.send(JSON.stringify({ type: 'stats_update', money: money }));
     }
 }
 
-connectSocket();
+/* ==========================================================================
+   ANA MENÜ BAŞLATMA
+   ========================================================================== */
+document.getElementById('btn-play-now').onclick = () => {
+    myPlayerName = document.getElementById('inp-nickname').value.trim() || "Lider";
+    roomCode = document.getElementById('inp-room').value.trim().toUpperCase() || "GENEL";
+    document.getElementById('ui-room').innerText = roomCode;
+    document.getElementById('main-menu').style.display = 'none';
+    initNetwork(roomCode);
+    updateUI();
+};
+
+document.getElementById('btn-random-room').onclick = () => {
+    const randCode = "KRAL-" + Math.floor(100 + Math.random() * 900);
+    document.getElementById('inp-room').value = randCode;
+    document.getElementById('btn-play-now').click();
+};
+
 updateUI();
 </script>
 </body>
